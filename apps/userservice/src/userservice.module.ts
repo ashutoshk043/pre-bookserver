@@ -1,14 +1,26 @@
 import { Module } from '@nestjs/common';
 import { UserserviceController } from './userservice.controller';
 import { UserserviceService } from './userservice.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true, // har jagah available
-    }),
-  ],
+      // ✅ Global Config
+      ConfigModule.forRoot({
+        isGlobal: true,
+      }),
+  
+      // ✅ Mongoose Connection using MONGO_USER_DB
+      MongooseModule.forRootAsync({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          uri: config.get<string>('MONGO_USER_DB'),
+          dbName: 'prebookuser', // optional: override db name if needed
+        }),
+      }),
+    ],
   controllers: [UserserviceController],
   providers: [UserserviceService],
 })
