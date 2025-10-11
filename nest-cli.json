@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/authservice/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/authservice/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/authservice",
+  "projects": {
+    "authservice": {
+      "type": "application",
+      "root": "apps/authservice",
+      "entryFile": "main",
+      "sourceRoot": "apps/authservice/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/authservice/tsconfig.app.json"
+      }
+    },
+    "orderservice": {
+      "type": "application",
+      "root": "apps/orderservice",
+      "entryFile": "main",
+      "sourceRoot": "apps/orderservice/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/orderservice/tsconfig.app.json"
+      }
+    },
+    "productservice": {
+      "type": "application",
+      "root": "apps/productservice",
+      "entryFile": "main",
+      "sourceRoot": "apps/productservice/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/productservice/tsconfig.app.json"
+      }
+    },
+    "userservice": {
+      "type": "application",
+      "root": "apps/userservice",
+      "entryFile": "main",
+      "sourceRoot": "apps/userservice/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/userservice/tsconfig.app.json"
+      }
+    }
+  }
+}

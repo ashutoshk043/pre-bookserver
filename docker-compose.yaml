@@ -1,0 +1,118 @@
+version: '3.8'
+
+services:
+  # ============================
+  # 🗄️ MongoDB Database
+  # ============================
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: pre-book
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/pre-book --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # ============================
+  # 🔐 Auth Service
+  # ============================
+  authservice:
+    build:
+      context: .
+      dockerfile: ./apps/authservice/Dockerfile
+    container_name: authservice
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/pre-book
+      NODE_ENV: production
+      AUTHSERVICEPORT: 9000
+    ports:
+      - '9000:9000'
+    networks:
+      - app-network
+
+  # ============================
+  # 👤 User Service
+  # ============================
+  userservice:
+    build:
+      context: .
+      dockerfile: ./apps/userservice/Dockerfile
+    container_name: userservice
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/pre-book
+      NODE_ENV: production
+      USERSERVICEPORT: 9001
+    ports:
+      - '9001:9001'
+    networks:
+      - app-network
+
+  # ============================
+  # 📦 Product Service
+  # ============================
+  productservice:
+    build:
+      context: .
+      dockerfile: ./apps/productservice/Dockerfile
+    container_name: productservice
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/pre-book
+      NODE_ENV: production
+      PRODUCTSERVICEPORT: 9002
+    ports:
+      - '9002:9002'
+    networks:
+      - app-network
+
+  # ============================
+  # 🧾 Order Service
+  # ============================
+  orderservice:
+    build:
+      context: .
+      dockerfile: ./apps/orderservice/Dockerfile
+    container_name: orderservice
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_URI: mongodb://mongo:27017/pre-book
+      NODE_ENV: production
+      ORDERSERVICEPORT: 9003
+    ports:
+      - '9003:9003'
+    networks:
+      - app-network
+
+# ============================
+# 🔸 Volumes & Networks
+# ============================
+volumes:
+  mongo-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
