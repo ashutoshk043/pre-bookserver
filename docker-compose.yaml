@@ -35,8 +35,8 @@ services:
       mongo:
         condition: service_healthy
     environment:
-      MONGO_URI: mongodb://mongo:27017/userprebook
-      NODE_ENV: production
+      MONGO_USER_DB: mongodb://mongo:27017/userprebook
+      NODE_ENV: docker
       AUTHSERVICEPORT: 9000
     ports:
       - '9000:9000'
@@ -56,8 +56,8 @@ services:
       mongo:
         condition: service_healthy
     environment:
-      MONGO_URI: mongodb://mongo:27017/userprebook
-      NODE_ENV: production
+      MONGO_USER_DB: mongodb://mongo:27017/userprebook
+      NODE_ENV: docker
       USERSERVICEPORT: 9001
     ports:
       - '9001:9001'
@@ -77,8 +77,8 @@ services:
       mongo:
         condition: service_healthy
     environment:
-      MONGO_URI: mongodb://mongo:27017/foodprebook
-      NODE_ENV: production
+      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
+      NODE_ENV: docker
       PRODUCTSERVICEPORT: 9002
     ports:
       - '9002:9002'
@@ -98,8 +98,8 @@ services:
       mongo:
         condition: service_healthy
     environment:
-      MONGO_URI: mongodb://mongo:27017/foodprebook
-      NODE_ENV: production
+      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
+      NODE_ENV: docker
       ORDERSERVICEPORT: 9003
     ports:
       - '9003:9003'

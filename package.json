@@ -20,8 +20,8 @@
     "start:auth": "nest start authservice --watch",
     "start:user": "nest start userservice --watch",
     "start:order": "nest start orderservice --watch",
-    "start:gateway": "nest start apigateway --watch",
-    "start:dev": "concurrently -n auth,user,order,gateway -c red,green,blue,yellow \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:gateway\""
+    "start:product": "nest start productservice --watch",
+    "start:dev": "concurrently -n auth,user,order,product -c red,green,blue,magenta \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
