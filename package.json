@@ -19,8 +19,8 @@
     "test:e2e": "jest --config ./apps/authservice/test/jest-e2e.json",
     "start:auth": "nest start authservice --watch",
     "start:user": "nest start userservice --watch",
-    "start:order": "nest start orderservice --watch",
-    "start:product": "nest start productservice --watch",
+    "start:order": "nest start apps/foodservers/orderservice --watch",
+    "start:product": "nest start apps/foodservers/productservice --watch",
     "start:dev": "concurrently -n auth,user,order,product -c red,green,blue,magenta \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
   },
   "dependencies": {

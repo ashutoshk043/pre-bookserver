@@ -70,7 +70,7 @@ services:
   productservice:
     build:
       context: .
-      dockerfile: ./apps/productservice/Dockerfile
+      dockerfile: ./apps/foodservers/productservice/Dockerfile
     container_name: productservice
     restart: unless-stopped
     depends_on:
@@ -91,7 +91,7 @@ services:
   orderservice:
     build:
       context: .
-      dockerfile: ./apps/orderservice/Dockerfile
+      dockerfile: ./apps/foodservers/orderservice/Dockerfile
     container_name: orderservice
     restart: unless-stopped
     depends_on:

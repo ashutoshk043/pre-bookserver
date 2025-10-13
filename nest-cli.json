@@ -21,20 +21,20 @@
     },
     "orderservice": {
       "type": "application",
-      "root": "apps/orderservice",
+      "root": "apps/foodservers/orderservice",
       "entryFile": "main",
-      "sourceRoot": "apps/orderservice/src",
+      "sourceRoot": "apps/foodservers/orderservice/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/orderservice/tsconfig.app.json"
+        "tsConfigPath": "apps/foodservers/orderservice/tsconfig.app.json"
       }
     },
     "productservice": {
       "type": "application",
-      "root": "apps/productservice",
+      "root": "apps/foodservers/productservice",
       "entryFile": "main",
-      "sourceRoot": "apps/productservice/src",
+      "sourceRoot": "apps/foodservers/productservice/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/productservice/tsconfig.app.json"
+        "tsConfigPath": "apps/foodservers/productservice/tsconfig.app.json"
       }
     },
     "userservice": {
