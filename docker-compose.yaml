@@ -58,9 +58,9 @@ services:
     environment:
       MONGO_USER_DB: mongodb://mongo:27017/userprebook
       NODE_ENV: docker
-      USERSERVICEPORT: 9001
+      USERSERVICEPORT: 9003
     ports:
-      - '9001:9001'
+      - '9003:9003'
     networks:
       - app-network
 
@@ -100,9 +100,9 @@ services:
     environment:
       MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
       NODE_ENV: docker
-      ORDERSERVICEPORT: 9003
+      ORDERSERVICEPORT: 9001
     ports:
-      - '9003:9003'
+      - '9001:9001'
     networks:
       - app-network
 

@@ -19,17 +19,21 @@
     "test:e2e": "jest --config ./apps/authservice/test/jest-e2e.json",
     "start:auth": "nest start authservice --watch",
     "start:user": "nest start userservice --watch",
-    "start:order": "nest start apps/foodservers/orderservice --watch",
-    "start:product": "nest start apps/foodservers/productservice --watch",
+    "start:order": "nest start orderservice --watch",
+    "start:product": "nest start productservice --watch",
     "start:dev": "concurrently -n auth,user,order,product -c red,green,blue,magenta \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
   },
   "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "@nestjs/apollo": "^13.2.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/graphql": "^13.2.0",
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "graphql": "^16.11.0",
     "mongoose": "^8.19.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
@@ -79,7 +83,11 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/apps/"
-    ]
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1"
+    }
   }
 }

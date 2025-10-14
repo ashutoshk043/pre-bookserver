@@ -24,6 +24,6 @@ async function bootstrap() {
   const port = process.env.ORDERSERVICEPORT || 3001;  // fallback port
   await app.listen(port, '0.0.0.0');  // important for Docker
 
-  console.log(`🚀 AuthService running on port ${port}`);
+  console.log(`🚀 OrderService running on port ${port}`);
 }
 bootstrap();
