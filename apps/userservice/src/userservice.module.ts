@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { UserserviceController } from './userservice.controller';
 import { UserserviceService } from './userservice.service';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
+import { UserresolverResolver } from './userresolver/userresolver.resolver';
+import { SharedGraphQLModule } from '@app/graphql';
 
 @Module({
   imports: [
@@ -13,13 +14,18 @@ import { DatabaseModule } from '@app/database';
     }),
 
     // ✅ Mongoose Connection using MONGO_USER_DB
-        DatabaseModule.forRoot([
-          { name: 'usersConnection', dbName: 'userprebook',uriKey: 'MONGO_USER_DB' },
-          // { name: 'ordersConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
-          // { name: 'productConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
-        ]),
+    DatabaseModule.forRoot([
+      { name: 'usersConnection', dbName: 'userprebook', uriKey: 'MONGO_USER_DB' },
+      // { name: 'ordersConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
+      // { name: 'productConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
+    ]),
+
+    SharedGraphQLModule.forRoot({
+      federation: false,   // ya true agar federation use kar rahe ho
+      playground: true,
+    }),
   ],
-  controllers: [UserserviceController],
-  providers: [UserserviceService],
+  controllers: [],
+  providers: [UserserviceService, UserresolverResolver],
 })
 export class UserserviceModule { }

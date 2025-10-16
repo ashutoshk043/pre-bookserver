@@ -1,8 +1,9 @@
 import { Logger, Module } from '@nestjs/common';
-import { OrderserviceController } from './orderservice.controller';
 import { OrderserviceService } from './orderservice.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@app/database';
+import { OrderresolverResolver } from './orderresolver/orderresolver.resolver';
+import { SharedGraphQLModule } from '@app/graphql';
 
 @Module({
   imports: [
@@ -18,8 +19,15 @@ import { DatabaseModule } from '@app/database';
            { name: 'ordersConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
            // { name: 'productConnection', dbName: 'foodprebook', uriKey: 'MONGO_FOOD_DB' },
          ]),
+
+             SharedGraphQLModule.forRoot({
+               federation: false,   // ya true agar federation use kar rahe ho
+               playground: true,
+             }),
     ],
-  controllers: [OrderserviceController],
-  providers: [OrderserviceService],
+  controllers: [],
+  providers: [OrderserviceService, OrderresolverResolver],
 })
-export class OrderserviceModule {}
+export class OrderserviceModule {
+  
+}
