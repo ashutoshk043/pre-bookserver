@@ -21,15 +21,17 @@
     "start:user": "nest start userservice --watch",
     "start:order": "nest start orderservice --watch",
     "start:product": "nest start productservice --watch",
-    "start:dev": "concurrently -n auth,user,order,product -c red,green,blue,magenta \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
-  },
+    "start:gateway": "nest start gateway --watch",
+"start:dev": "concurrently -n gateway,auth,user,order,product -c yellow,red,green,blue,magenta \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""  },
   "dependencies": {
+    "@apollo/gateway": "^2.11.3",
     "@apollo/server": "^5.0.0",
+    "@apollo/subgraph": "^2.11.3",
     "@as-integrations/express5": "^1.1.2",
     "@nestjs/apollo": "^13.2.1",
-    "@nestjs/common": "^11.0.1",
+    "@nestjs/common": "^11.1.6",
     "@nestjs/config": "^4.0.2",
-    "@nestjs/core": "^11.0.1",
+    "@nestjs/core": "^11.1.6",
     "@nestjs/graphql": "^13.2.0",
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
@@ -38,7 +40,7 @@
     "mongoose": "^8.19.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
+    "rxjs": "^7.8.2",
     "typeorm": "^0.3.27"
   },
   "devDependencies": {

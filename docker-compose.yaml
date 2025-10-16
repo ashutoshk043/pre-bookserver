@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ============================
   # 🗄️ MongoDB Database
@@ -15,7 +13,7 @@ services:
     environment:
       MONGO_INITDB_DATABASE: userprebook
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/userprebook --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/userprebook --quiet
       interval: 10s
       timeout: 5s
       retries: 5
@@ -32,8 +30,7 @@ services:
     container_name: authservice
     restart: unless-stopped
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     environment:
       MONGO_USER_DB: mongodb://mongo:27017/userprebook
       NODE_ENV: docker
@@ -42,6 +39,12 @@ services:
       - '9000:9000'
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://authservice:9000/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # ============================
   # 👤 User Service
@@ -53,8 +56,7 @@ services:
     container_name: userservice
     restart: unless-stopped
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     environment:
       MONGO_USER_DB: mongodb://mongo:27017/userprebook
       NODE_ENV: docker
@@ -63,6 +65,12 @@ services:
       - '9003:9003'
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://userservice:9003/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # ============================
   # 📦 Product Service
@@ -74,8 +82,7 @@ services:
     container_name: productservice
     restart: unless-stopped
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     environment:
       MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
       NODE_ENV: docker
@@ -84,6 +91,12 @@ services:
       - '9002:9002'
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://productservice:9002/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # ============================
   # 🧾 Order Service
@@ -95,8 +108,7 @@ services:
     container_name: orderservice
     restart: unless-stopped
     depends_on:
-      mongo:
-        condition: service_healthy
+      - mongo
     environment:
       MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
       NODE_ENV: docker
@@ -105,10 +117,41 @@ services:
       - '9001:9001'
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://orderservice:9001/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
-# ============================
-# 🔸 Volumes & Networks
-# ============================
+  # ============================
+  # 🌐 Gateway Service
+  # ============================
+  gateway:
+    build:
+      context: .
+      dockerfile: ./apps/gateway/Dockerfile
+    container_name: gateway
+    restart: unless-stopped
+    depends_on:
+      - authservice
+      - userservice
+      - orderservice
+      - productservice
+    environment:
+      NODE_ENV: docker
+      GATEWAY_PORT: 8080
+    ports:
+      - '8080:8080'
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://gateway:8080/graphql || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 volumes:
   mongo-data:
     driver: local

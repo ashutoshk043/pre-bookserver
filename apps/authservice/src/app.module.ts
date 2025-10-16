@@ -20,7 +20,7 @@ import { SharedGraphQLModule } from '@app/graphql';
     ]),
     // ✅ Global GraphQL Connection (reusable)
     SharedGraphQLModule.forRoot({
-      federation: false,   // ya true agar federation use kar rahe ho
+      federation: true,   // ya true agar federation use kar rahe ho
       playground: true,
     }),
   ],
