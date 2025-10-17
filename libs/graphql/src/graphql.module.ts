@@ -15,7 +15,7 @@ export class SharedGraphQLModule {
   private static readonly logger = new Logger(SharedGraphQLModule.name);
 
   static forRoot(options: GraphQLConnectionOptions = {}): DynamicModule {
-    const { federation = false, playground = true, schemaPath = 'src/schema.gql' } = options;
+    const { federation = true, playground = true, schemaPath = 'src/schema.gql' } = options;
 
     this.logger.log(
       `🚀 Initializing GraphQL Module [Mode: ${federation ? 'Federation' : 'Standalone'}]`

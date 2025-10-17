@@ -22,7 +22,8 @@
     "start:order": "nest start orderservice --watch",
     "start:product": "nest start productservice --watch",
     "start:gateway": "nest start gateway --watch",
-"start:dev": "concurrently -n gateway,auth,user,order,product -c yellow,red,green,blue,magenta \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""  },
+    "start:dev": "concurrently -n gateway,auth,user,order,product -c yellow,red,green,blue,magenta \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
+  },
   "dependencies": {
     "@apollo/gateway": "^2.11.3",
     "@apollo/server": "^5.0.0",
@@ -36,6 +37,8 @@
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
     "graphql": "^16.11.0",
     "mongoose": "^8.19.1",
     "pg": "^8.16.3",
