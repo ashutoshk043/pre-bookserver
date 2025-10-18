@@ -21,8 +21,9 @@
     "start:user": "nest start userservice --watch",
     "start:order": "nest start orderservice --watch",
     "start:product": "nest start productservice --watch",
+    "start:restraurent": "nest start restraurentservice --watch",
     "start:gateway": "nest start gateway --watch",
-    "start:dev": "concurrently -n gateway,auth,user,order,product -c yellow,red,green,blue,magenta \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\""
+    "start:dev": "concurrently -n gateway,auth,user,order,product,restraurent -c yellow,red,green,blue,magenta,cyan \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\" \"npm run start:restraurent\""
   },
   "dependencies": {
     "@apollo/gateway": "^2.11.3",

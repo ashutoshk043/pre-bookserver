@@ -23,6 +23,17 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
+    "restraurentservice": {
+      "type": "application",
+      "root": "apps/foodservers/restraurent",
+      "entryFile": "main",
+      "sourceRoot": "apps/foodservers/restraurent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/foodservers/restraurent/tsconfig.app.json",
+        "webpack": true,
+        "deleteOutDir": true
+      }
+    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",
