@@ -19,6 +19,7 @@ import { IntrospectAndCompose } from '@apollo/gateway';
             { name: 'user', url: 'http://localhost:9003/graphql' },
             { name: 'order', url: 'http://localhost:9001/graphql' },
             { name: 'product', url: 'http://localhost:9002/graphql' },
+            { name: 'restraurent', url: 'http://localhost:9004/graphql' },
           ],
           pollIntervalInMs: 2000, // ✅ correct property
         }),
