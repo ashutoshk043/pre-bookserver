@@ -8,8 +8,7 @@ export type ProductDocument = Product & Document;
 @Schema({ timestamps: true })
 export class Product {
   @Field(() => ID)
-  @Prop({ required: true })
-  id: string
+  declare readonly _id: string;
 
   @Prop({ required: true })
   name: string;
