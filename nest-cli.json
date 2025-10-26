@@ -23,24 +23,15 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
-    "restraurentservice": {
-      "type": "application",
-      "root": "apps/foodservers/restraurent",
-      "entryFile": "main",
-      "sourceRoot": "apps/foodservers/restraurent/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/foodservers/restraurent/tsconfig.app.json",
-        "webpack": true,
-        "deleteOutDir": true
-      }
-    },
     "gateway": {
       "type": "application",
       "root": "apps/gateway",
       "entryFile": "main",
       "sourceRoot": "apps/gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+        "tsConfigPath": "apps/gateway/tsconfig.app.json",
+        "webpack": true,
+        "deleteOutDir": true
       }
     },
     "graphql": {
@@ -74,13 +65,22 @@
         "deleteOutDir": true
       }
     },
-    "userservice": {
-      "type": "application",
-      "root": "apps/userservice",
-      "entryFile": "main",
-      "sourceRoot": "apps/userservice/src",
+    "redis": {
+      "type": "library",
+      "root": "libs/redis",
+      "entryFile": "index",
+      "sourceRoot": "libs/redis/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/userservice/tsconfig.app.json",
+        "tsConfigPath": "libs/redis/tsconfig.lib.json"
+      }
+    },
+    "restraurent": {
+      "type": "application",
+      "root": "apps/foodservers/restraurent",
+      "entryFile": "main",
+      "sourceRoot": "apps/foodservers/restraurent/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/foodservers/restraurent/tsconfig.app.json",
         "webpack": true,
         "deleteOutDir": true
       }

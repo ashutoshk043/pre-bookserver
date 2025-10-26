@@ -1,12 +1,15 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { Restaurant } from '../models/restraurent_model';
 import { restraurentService } from '../restraurent.service';
+import { LoginserviceService } from '../loginservice/loginservice.service';
 import { CreateRestaurantDto } from '../dtos/create_restraurent_input';
 import { UpdateRestaurantDto } from '../dtos/update_restraurent_input';
+import { LoginRestaurantDto } from '../dtos/login_restraurent_input';
+import { RestaurantLoginResponse } from '../dtos/login_responce';
 
 @Resolver(() => Restaurant)
 export class RestraurentResolver {
-  constructor(private readonly restraurentService: restraurentService) {}
+  constructor(private readonly restraurentService: restraurentService, private loginserviceService : LoginserviceService ) {}
 
   /**
    * 🟢 Mutation: Create a new Restaurant
@@ -60,4 +63,14 @@ export class RestraurentResolver {
   hellorestraurent(): string {
     return this.restraurentService.getHello();
   }
+
+@Mutation(() => RestaurantLoginResponse, { name: 'loginRestraurentuser' })
+async loginRestraurentUser(
+  @Args('loginData') loginData: LoginRestaurantDto,
+): Promise<RestaurantLoginResponse> {
+  return this.loginserviceService.loginRestraurentUser(loginData);
+}
+
+
+
 }

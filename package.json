@@ -18,12 +18,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/authservice/test/jest-e2e.json",
     "start:auth": "nest start authservice --watch",
-    "start:user": "nest start userservice --watch",
     "start:order": "nest start orderservice --watch",
     "start:product": "nest start productservice --watch",
-    "start:restraurent": "nest start restraurentservice --watch",
+    "start:restraurent": "nest start restraurent --watch",
     "start:gateway": "nest start gateway --watch",
-    "start:dev": "concurrently -n gateway,auth,user,order,product,restraurent -c yellow,red,green,blue,magenta,cyan \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:user\" \"npm run start:order\" \"npm run start:product\" \"npm run start:restraurent\""
+    "start:dev": "concurrently -n gateway,auth,order,product,restraurent -c yellow,green,blue,magenta,cyan \"npm run start:gateway\" \"npm run start:auth\" \"npm run start:order\" \"npm run start:product\" \"npm run start:restraurent\""
   },
   "dependencies": {
     "@apollo/gateway": "^2.11.3",
@@ -35,12 +34,16 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.6",
     "@nestjs/graphql": "^13.2.0",
+    "@nestjs/jwt": "^11.0.1",
     "@nestjs/mongoose": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "axios": "^1.12.2",
+    "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "graphql": "^16.11.0",
+    "ioredis": "^5.8.2",
     "mongoose": "^8.19.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
@@ -53,6 +56,7 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/axios": "^0.9.36",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
@@ -95,7 +99,8 @@
     ],
     "moduleNameMapper": {
       "^@app/database(|/.*)$": "<rootDir>/libs/database/src/$1",
-      "^@app/graphql(|/.*)$": "<rootDir>/libs/graphql/src/$1"
+      "^@app/graphql(|/.*)$": "<rootDir>/libs/graphql/src/$1",
+      "^@app/redis(|/.*)$": "<rootDir>/libs/redis/src/$1"
     }
   }
 }
