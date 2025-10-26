@@ -50,6 +50,10 @@ export class Restaurant extends Document {
   @Prop()
   email: string;
 
+  @Field({ nullable: true })
+  @Prop()
+  password: string;
+
   // 🔹 Location Details
   @Field({ nullable: true })
   @Prop()
@@ -140,7 +144,7 @@ export class Restaurant extends Document {
   @Prop({ type: Object })
   verifiedBy?: VerificationInfo;
 
-    @Field({ nullable: true })
+  @Field({ nullable: true })
   createdAt?: Date;
 
   @Field({ nullable: true })

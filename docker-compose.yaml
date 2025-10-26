@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   # ============================
   # 🗄️ MongoDB Database
@@ -12,13 +14,32 @@ services:
       - mongo-data:/data/db
     environment:
       MONGO_INITDB_DATABASE: userprebook
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh mongo:27017/userprebook --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 5
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --eval 'db.runCommand({ ping: 1 })' mongodb://localhost:27017/userprebook --quiet || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ============================
+  # 🟢 Redis
+  # ============================
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   # ============================
   # 🔐 Auth Service
@@ -28,7 +49,7 @@ services:
       context: .
       dockerfile: ./apps/authservice/Dockerfile
     container_name: authservice
-    restart: unless-stopped
+    restart: on-failure
     depends_on:
       - mongo
     environment:
@@ -40,63 +61,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://authservice:9000/graphql || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-
-  # ============================
-  # 👤 User Service
-  # ============================
-  userservice:
-    build:
-      context: .
-      dockerfile: ./apps/userservice/Dockerfile
-    container_name: userservice
-    restart: unless-stopped
-    depends_on:
-      - mongo
-    environment:
-      MONGO_USER_DB: mongodb://mongo:27017/userprebook
-      NODE_ENV: docker
-      USERSERVICEPORT: 9003
-    ports:
-      - '9003:9003'
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://userservice:9003/graphql || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-
-  # ============================
-  # 📦 Product Service
-  # ============================
-  productservice:
-    build:
-      context: .
-      dockerfile: ./apps/foodservers/productservice/Dockerfile
-    container_name: productservice
-    restart: unless-stopped
-    depends_on:
-      - mongo
-    environment:
-      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
-      NODE_ENV: docker
-      PRODUCTSERVICEPORT: 9002
-    ports:
-      - '9002:9002'
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://productservice:9002/graphql || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      disable: true
 
   # ============================
   # 🧾 Order Service
@@ -106,7 +71,7 @@ services:
       context: .
       dockerfile: ./apps/foodservers/orderservice/Dockerfile
     container_name: orderservice
-    restart: unless-stopped
+    restart: on-failure
     depends_on:
       - mongo
     environment:
@@ -118,11 +83,54 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://orderservice:9001/graphql || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      disable: true
+
+  # ============================
+  # 📦 Product Service
+  # ============================
+  productservice:
+    build:
+      context: .
+      dockerfile: ./apps/foodservers/productservice/Dockerfile
+    container_name: productservice
+    restart: on-failure
+    depends_on:
+      - mongo
+    environment:
+      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
+      NODE_ENV: docker
+      PRODUCTSERVICEPORT: 9002
+    ports:
+      - '9002:9002'
+    networks:
+      - app-network
+    healthcheck:
+      disable: true
+
+  # ============================
+  # 🏪 Restaurant Service
+  # ============================
+  restraurent:
+    build:
+      context: .
+      dockerfile: ./apps/foodservers/restraurent/Dockerfile
+    container_name: restraurent
+    restart: on-failure
+    depends_on:
+      - mongo
+      - redis
+    environment:
+      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
+      NODE_ENV: docker
+      RESTRAURENTPORT: 9004
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - '9004:9004'
+    networks:
+      - app-network
+    healthcheck:
+      disable: true
 
   # ============================
   # 🌐 Gateway Service
@@ -132,12 +140,12 @@ services:
       context: .
       dockerfile: ./apps/gateway/Dockerfile
     container_name: gateway
-    restart: unless-stopped
+    restart: on-failure
     depends_on:
       - authservice
-      - userservice
       - orderservice
       - productservice
+      - restraurent
     environment:
       NODE_ENV: docker
       GATEWAY_PORT: 8080
@@ -146,11 +154,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://gateway:8080/graphql || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      disable: true
 
 volumes:
   mongo-data:

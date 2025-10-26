@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsBoolean, IsEmail, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsEnum, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateRestaurantDto {
@@ -18,15 +18,23 @@ export class CreateRestaurantDto {
   type: string;
 
   // 🔹 Contact Details
-  @Field({ nullable: true })
-  @IsOptional()
+  @Field()
   @IsString()
-  phone?: string;
+  phone: string;
 
-  @Field({ nullable: true })
-  @IsOptional()
+  @Field()
   @IsEmail()
-  email?: string;
+  email: string;
+
+  // 🔹 Authentication
+  @Field()
+  @IsString()
+  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  password: string;
+
+  @Field()
+  @IsString()
+  confirmPassword: string;
 
   // 🔹 Location
   @Field({ nullable: true })

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Restaurant } from './models/restraurent_model';
 import { CreateRestaurantDto } from './dtos/create_restraurent_input';
 import { UpdateRestaurantDto } from './dtos/update_restraurent_input';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class restraurentService {
@@ -18,27 +19,39 @@ export class restraurentService {
    */
   async createRestaurant(createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
     try {
-      const { name, type } = createRestaurantDto;
+      const { name, type, password, confirmPassword, email, city } = createRestaurantDto;
 
       if (!name || !type) {
         throw new BadRequestException('Name and Type are required.');
       }
 
-      // 🔍 Check if restaurant already exists with same name & city
-      if (createRestaurantDto.city && createRestaurantDto.name) {
-        const existing = await this.restaurantModel.findOne({
-          name: createRestaurantDto.name,
-          city: createRestaurantDto.city,
-        });
+      // ✅ Check password confirmation
+      if (password !== confirmPassword) {
+        throw new BadRequestException('Passwords do not match.');
+      }
 
+      // ✅ Check if email already exists
+      const existingEmail = await this.restaurantModel.findOne({ email });
+      if (existingEmail) {
+        throw new BadRequestException('Email already registered.');
+      }
+
+      // 🔍 Check if restaurant already exists with same name & city
+      if (city && name) {
+        const existing = await this.restaurantModel.findOne({ name, city });
         if (existing) {
           throw new BadRequestException('Restaurant with same name already exists in this city.');
         }
       }
 
-      // 🏗️ Create new restaurant entry
+      // // 🔐 Hash password using bcrypt
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // // 🏗️ Create new restaurant entry
       const newRestaurant = new this.restaurantModel({
         ...createRestaurantDto,
+        password: hashedPassword,
         isVerified: false,
         registrationDate: new Date(),
       });
