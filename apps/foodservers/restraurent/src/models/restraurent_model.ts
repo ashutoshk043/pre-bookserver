@@ -2,8 +2,8 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-
 @ObjectType()
+@Schema({ _id: false }) // ✅ No separate _id for subdocument
 export class VerificationInfo {
   @Field({ nullable: true })
   @Prop()
@@ -22,8 +22,10 @@ export class VerificationInfo {
   remarks?: string;
 }
 
+export const VerificationInfoSchema = SchemaFactory.createForClass(VerificationInfo);
+
 @ObjectType()
-@Schema({ timestamps: true })
+@Schema({ timestamps: true }) // ✅ Auto adds createdAt and updatedAt
 export class Restaurant extends Document {
   @Field(() => ID)
   declare readonly _id: string;
@@ -35,115 +37,116 @@ export class Restaurant extends Document {
 
   @Field({ nullable: true })
   @Prop()
-  ownerName: string;
+  ownerName?: string;
 
   @Field()
-  @Prop({ required: true, enum: ['RESTAURANT', 'CLOUD_KITCHEN', 'CART'] })
+  @Prop({ required: true, enum: ['restraurent', 'cloud_kitchen', 'cart', 'cafe'] })
   type: string;
 
   // 🔹 Contact Details
   @Field({ nullable: true })
-  @Prop()
-  phone: string;
+  @Prop({ unique: true, sparse: true }) // ✅ Allow unique but nullable
+  email?: string;
 
   @Field({ nullable: true })
   @Prop()
-  email: string;
+  phone?: string;
 
   @Field({ nullable: true })
   @Prop()
-  password: string;
+  password?: string;
 
   // 🔹 Location Details
   @Field({ nullable: true })
   @Prop()
-  address: string;
+  address?: string;
 
   @Field({ nullable: true })
   @Prop()
-  city: string;
+  city?: string;
 
   @Field({ nullable: true })
   @Prop()
-  state: string;
+  state?: string;
 
   @Field({ nullable: true })
   @Prop()
-  pincode: string;
+  pincode?: string;
 
   @Field({ nullable: true })
   @Prop()
-  latitude: string;
+  latitude?: string;
 
   @Field({ nullable: true })
   @Prop()
-  longitude: string;
+  longitude?: string;
 
   // 🔹 Legal & Verification Info
   @Field({ nullable: true })
   @Prop()
-  fssaiNumber: string;
+  fssaiNumber?: string;
 
   @Field({ nullable: true })
   @Prop()
-  gstNumber: string;
+  gstNumber?: string;
 
   @Field({ nullable: true })
   @Prop()
-  panNumber: string;
+  panNumber?: string;
 
   // 🔹 Business Info
   @Field({ nullable: true })
   @Prop()
-  registrationDate: Date;
+  registrationDate?: Date;
 
   @Field({ nullable: true })
   @Prop()
-  openingTime: string;
+  openingTime?: string;
 
   @Field({ nullable: true })
   @Prop()
-  closingTime: string;
+  closingTime?: string;
 
   @Field({ nullable: true })
-  @Prop()
-  isOpen: boolean;
+  @Prop({ default: false })
+  isOpen?: boolean;
 
   @Field({ nullable: true })
-  @Prop()
-  rating: number;
+  @Prop({ default: 0 })
+  rating?: number;
 
   @Field({ nullable: true })
-  @Prop()
-  totalOrders: number;
+  @Prop({ default: 0 })
+  totalOrders?: number;
 
   // 🔹 Images & Branding
   @Field({ nullable: true })
   @Prop()
-  logoUrl: string;
+  logoUrl?: string;
 
   @Field({ nullable: true })
   @Prop()
-  coverImageUrl: string;
+  coverImageUrl?: string;
 
   // 🔹 Misc
   @Field({ nullable: true })
   @Prop()
-  description: string;
+  description?: string;
+
+  @Field({ nullable: true })
+  @Prop({ default: false })
+  isVerified?: boolean;
 
   @Field({ nullable: true })
   @Prop()
-  isVerified: boolean;
+  createdBy?: string;
 
-  @Field({ nullable: true })
-  @Prop()
-  createdBy: string;
-
-  // 🔹 Verification Details
+  // 🔹 Verification Details (Subdocument)
   @Field(() => VerificationInfo, { nullable: true })
-  @Prop({ type: Object })
+  @Prop({ type: VerificationInfoSchema })
   verifiedBy?: VerificationInfo;
 
+  // 🔹 Timestamps
   @Field({ nullable: true })
   createdAt?: Date;
 
@@ -151,6 +154,7 @@ export class Restaurant extends Document {
   updatedAt?: Date;
 }
 
-
-
 export const RestaurantSchema = SchemaFactory.createForClass(Restaurant);
+
+// ✅ Create combined unique index for name + city
+RestaurantSchema.index({ name: 1, city: 1 }, { unique: true });

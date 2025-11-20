@@ -10,9 +10,11 @@
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { enableGlobalCors } from 'libs/cors/cors.helper';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  enableGlobalCors(app)
   
   const port = process.env.AUTHSERVICEPORT || 3000;  // fallback port
   await app.listen(port, '0.0.0.0');  // important for Docker

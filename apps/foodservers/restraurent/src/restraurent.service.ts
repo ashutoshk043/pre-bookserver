@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Restaurant } from './models/restraurent_model';
@@ -8,57 +8,72 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class restraurentService {
-    constructor(
+
+  private readonly logger = new Logger(restraurentService.name);
+
+  constructor(
     @InjectModel(Restaurant.name, 'ordersConnection') // must match connection name
     private readonly restaurantModel: Model<Restaurant>,
-  ) {}
+  ) { }
 
 
   /**
    * 🟢 Add (Register) a New Restaurant
    */
-  async createRestaurant(createRestaurantDto: CreateRestaurantDto): Promise<Restaurant> {
+  async createRestaurant(
+    createRestaurantDto: CreateRestaurantDto,
+  ): Promise<Restaurant> {
     try {
-      const { name, type, password, confirmPassword, email, city } = createRestaurantDto;
+      const {
+        name,
+        type,
+        password,
+        confirmPassword,
+        email,
+      } = createRestaurantDto;
 
+      // 🧩 Required checks
       if (!name || !type) {
         throw new BadRequestException('Name and Type are required.');
       }
 
-      // ✅ Check password confirmation
       if (password !== confirmPassword) {
         throw new BadRequestException('Passwords do not match.');
       }
 
-      // ✅ Check if email already exists
-      const existingEmail = await this.restaurantModel.findOne({ email });
-      if (existingEmail) {
-        throw new BadRequestException('Email already registered.');
-      }
-
-      // 🔍 Check if restaurant already exists with same name & city
-      if (city && name) {
-        const existing = await this.restaurantModel.findOne({ name, city });
-        if (existing) {
-          throw new BadRequestException('Restaurant with same name already exists in this city.');
-        }
-      }
-
-      // // 🔐 Hash password using bcrypt
+      // 🔐 Hash password
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // // 🏗️ Create new restaurant entry
-      const newRestaurant = new this.restaurantModel({
+      // 🏗️ Create & save new restaurant (atomic)
+      const restaurant = new this.restaurantModel({
         ...createRestaurantDto,
         password: hashedPassword,
         isVerified: false,
         registrationDate: new Date(),
       });
 
-      return await newRestaurant.save();
+      const saved = await restaurant.save();
+      this.logger.log(`✅ Restaurant registered: ${saved.name}`);
+      return saved;
+
     } catch (error) {
-      throw new BadRequestException(error.message || 'Failed to create restaurant.');
+      // ⚠️ Handle duplicate key errors from Mongo
+      if (error.code === 11000) {
+        if (error.keyPattern?.email) {
+          throw new BadRequestException('Email already registered.');
+        }
+        if (error.keyPattern?.name && error.keyPattern?.city) {
+          throw new BadRequestException(
+            'Restaurant with same name already exists in this city.',
+          );
+        }
+      }
+
+      this.logger.error('❌ Restaurant registration failed', error);
+      throw new BadRequestException(
+        error.message || 'Failed to create restaurant.',
+      );
     }
   }
 
@@ -83,16 +98,37 @@ export class restraurentService {
   /**
    * 🟠 Update Restaurant Info (for admin or owner)
    */
-  async updateRestaurant(id: string, updateDto: UpdateRestaurantDto): Promise<Restaurant> {
+async updateRestaurant(id: string, updateDto: UpdateRestaurantDto): Promise<Restaurant> {
+  console.log('==============================');
+  console.log('🔹 [Update Request Received]');
+  console.log('Restaurant ID:', id);
+  console.log('Update Payload:', JSON.stringify(updateDto, null, 2));
+  console.log('==============================');
+
+  try {
+    console.log('🔍 Finding and updating restaurant...');
     const updated = await this.restaurantModel.findByIdAndUpdate(id, updateDto, {
       new: true,
       runValidators: true,
     });
+
     if (!updated) {
+      console.error('❌ Restaurant not found or update failed.');
       throw new BadRequestException('Restaurant not found or update failed.');
     }
+
+    console.log('✅ [Update Successful]');
+    console.log('Updated Restaurant:', JSON.stringify(updated, null, 2));
+    console.log('==============================');
+
     return updated;
+  } catch (error) {
+    console.error('🚨 [Error while updating restaurant]:', error.message);
+    console.log('==============================');
+    throw error;
   }
+}
+
 
   /**
    * 🔴 Delete Restaurant
