@@ -3,31 +3,19 @@ import { Field, ObjectType } from '@nestjs/graphql';
 @ObjectType()  // ✅ GraphQL output ke liye
 export class restProfileDTO {
   @Field(() => String)
-  name: string;
+  userId: string;
 
   @Field(() => String, { nullable: true })
-  ownerName?: string;
+  restaurantName?: string;
 
   @Field(() => String)
-  type: string;
+  restaurantType: string;
 
   @Field(() => String)
-  phone: string;
+  restaurantAddress: string;
 
   @Field(() => String)
-  email: string;
-
-  @Field(() => String, { nullable: true })
-  address?: string;
-
-  @Field(() => String, { nullable: true })
-  city?: string;
-
-  @Field(() => String, { nullable: true })
-  state?: string;
-
-  @Field(() => String, { nullable: true })
-  pincode?: string;
+  pincode: string;
 
   @Field(() => String, { nullable: true })
   latitude?: string;
@@ -44,8 +32,8 @@ export class restProfileDTO {
   @Field(() => String, { nullable: true })
   panNumber?: string;
 
-  @Field(() => Date, { nullable: true })
-  registrationDate?: Date;
+  @Field(() => String, { nullable: true })
+  registrationDate?: string;
 
   @Field(() => String, { nullable: true })
   openingTime?: string;
@@ -53,20 +41,11 @@ export class restProfileDTO {
   @Field(() => String, { nullable: true })
   closingTime?: string;
 
-  @Field(() => Boolean, { nullable: true })
-  isOpen?: boolean;
-
-  @Field(() => Number, { nullable: true })
-  rating?: number;
-
-  @Field(() => Number, { nullable: true })
-  totalOrders?: number;
-
   @Field(() => String, { nullable: true })
   logoUrl?: string;
 
-  @Field(() => String, { nullable: true })
-  coverImageUrl?: string;
+  @Field(() => Date, { nullable: true })
+  coverImageUrl?: Date;
 
   @Field(() => String, { nullable: true })
   description?: string;

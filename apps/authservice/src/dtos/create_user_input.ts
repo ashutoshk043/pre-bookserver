@@ -39,6 +39,9 @@ export class CreateUserInput {
 
   @Field({ nullable: true })
   status?: string;
+  
+  @Field({ nullable: true })
+  restaurantId?:string
 
   /**
    * ✅ permissions: module-wise CRUD actions
