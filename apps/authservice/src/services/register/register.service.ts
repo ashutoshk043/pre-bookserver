@@ -8,6 +8,11 @@ import { CreateUserInput } from '../../dtos/create_user_input';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { RedisService } from '@app/redis/redis.service';
+import { States } from '../../models/state_model';
+import { Districts } from '../../models/distric_model';
+import { SubDistricts } from '../../models/subdistrict_model';
+import { Villages } from '../../models/villagemodel';
+import { UpdateUserInput } from '../../dtos/update_user_input';
 
 @Injectable()
 export class RegisterService {
@@ -17,100 +22,116 @@ export class RegisterService {
 
     @InjectModel(Restaurant_details.name, 'usersConnection')
     private readonly restaurantModel: Model<Restaurant_details>,
+
+    @InjectModel(States.name, 'usersConnection')
+    private readonly stateModel: Model<States>,
+
+    @InjectModel(Districts.name, 'usersConnection')
+    private readonly districtModel: Model<Districts>,
+
+    @InjectModel(SubDistricts.name, 'usersConnection')
+    private readonly subdistrictModel: Model<SubDistricts>,
+
+    @InjectModel(Villages.name, 'usersConnection')
+    private readonly villageModel: Model<Villages>,
+
     private readonly redisService: RedisService,
   ) { }
 
   // ============================================================
   // ✅ Create User + Restaurant Details (if restaurant role)
   // ============================================================
-async createUser(createUserInput: CreateUserInput): Promise<User> {
-  console.log("📩 Received CreateUserInput:", createUserInput);
+  async createUser(createUserInput: CreateUserInput): Promise<User> {
+    console.log("📩 Received CreateUserInput:", createUserInput);
 
-  const { restaurant, password, confirmPassword, email, phone, ...userData } = createUserInput;
-  let savedUser: User | null = null;
+    const { password, confirmPassword, email, phone, ...userData } = createUserInput;
+    let savedUser: User | null = null;
 
-  try {
-    // STEP 0: Password validation
-    if (password !== confirmPassword) {
-      throw new Error("Password and Confirm Password do not match");
-    }
-
-    // 🔐 Hash password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // STEP 1: Check for duplicate user by email or phone
-    const existingUser = await this.userModel.findOne({
-      $or: [{ email }, { phone }],
-    });
-
-    if (existingUser) {
-      throw new Error('User with this email or phone already exists');
-    }
-
-    // STEP 2: Save user basic data with hashed password
-    const newUser = new this.userModel({
-      email,
-      phone,
-      password: hashedPassword,
-      ...userData,
-    });
-
-    savedUser = await newUser.save();
-
-    // STEP 3: If role is 'r6', save restaurant data
-    if (createUserInput.roleId === 'restaurant-owner' && restaurant) {
-      // Check for duplicate restaurant name for the same user
-      const existingRestaurant = await this.restaurantModel.findOne({
-        restaurantName: restaurant.restaurantName,
-        userId: savedUser._id,
-      });
-
-      if (existingRestaurant) {
-        throw new Error('Restaurant with this name already exists for this user');
+    try {
+      // STEP 0: Password validation
+      if (password !== confirmPassword) {
+        throw new Error("Password and Confirm Password do not match");
       }
 
-      const restDoc = new this.restaurantModel({
-        ...restaurant,
-        userId: savedUser._id,
+      // 🔐 Hash password
+      const saltRounds = 10;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+      // STEP 1: Check for duplicate user by email or phone
+      const existingUser = await this.userModel.findOne({
+        $or: [{ email }, { phone }],
       });
 
-      const savedRest = await restDoc.save();
-
-      // Update user with restaurantId
-      savedUser.restaurantId = savedRest._id.toString();
-      await savedUser.save();
-    }
-
-    return savedUser;
-  } catch (error) {
-    console.error("❌ Error creating user:", error);
-
-    // Manual rollback if user was already saved
-    if (savedUser && savedUser._id) {
-      try {
-        await this.userModel.findByIdAndDelete(savedUser._id);
-        console.log("♻️ Rolled back user creation");
-      } catch (rollbackError) {
-        console.error("⚠️ Failed to rollback user:", rollbackError);
+      if (existingUser) {
+        throw new Error('User with this email or phone already exists');
       }
-    }
 
-    throw error;
+      // STEP 2: Save user basic data with hashed password
+      const newUser = new this.userModel({
+        email,
+        phone,
+        password: hashedPassword,
+        ...userData,
+      });
+
+      savedUser = await newUser.save();
+
+      // STEP 3: If role is 'r6', save restaurant data
+      // if (createUserInput.roleId === 'restaurant-owner' && restaurant) {
+      //   // Check for duplicate restaurant name for the same user
+      //   const existingRestaurant = await this.restaurantModel.findOne({
+      //     restaurantName: restaurant.restaurantName,
+      //     userId: savedUser._id,
+      //   });
+
+      //   if (existingRestaurant) {
+      //     throw new Error('Restaurant with this name already exists for this user');
+      //   }
+
+      //   const restDoc = new this.restaurantModel({
+      //     ...restaurant,
+      //     userId: savedUser._id,
+      //   });
+
+      //   const savedRest = await restDoc.save();
+
+      //   // Update user with restaurantId
+      //   savedUser.restaurantId = savedRest._id.toString();
+      //   await savedUser.save();
+      // }
+
+      return savedUser;
+    } catch (error) {
+      console.error("❌ Error creating user:", error);
+
+      // Manual rollback if user was already saved
+      if (savedUser && savedUser._id) {
+        try {
+          await this.userModel.findByIdAndDelete(savedUser._id);
+          console.log("♻️ Rolled back user creation");
+        } catch (rollbackError) {
+          console.error("⚠️ Failed to rollback user:", rollbackError);
+        }
+      }
+
+      throw error;
+    }
   }
-}
 
   // ============================================================
   // GET ALL USERS
   // ============================================================
-  async findAllUsers(restId:any): Promise<User[]> {
-    if(restId=='all'){
-      return this.userModel.find().exec();
-    }else{
-    return this.userModel.find({restaurantId:restId}).exec();
-
-    }
+async findAllUsers(restId: any): Promise<User[]> {
+  if (restId == 'all') {
+    return this.userModel.find().sort({ _id: -1 }).exec();
+  } else {
+    return this.userModel
+      .find({ restaurantId: restId })
+      .sort({ _id: -1 })
+      .exec();
   }
+}
+
 
   // ============================================================
   // GET USER BY ID
@@ -157,7 +178,51 @@ async createUser(createUserInput: CreateUserInput): Promise<User> {
 
 
 
+  async deleteUser(userId: string) {
+    const deletedUser = await this.userModel.findByIdAndDelete(userId).exec();
 
+    if (!deletedUser) {
+      throw new Error('User not found');
+    }
+
+    return { message: 'User deleted successfully' };
+  }
+
+  async getAllStates() {
+    const allStates = await this.stateModel.find().exec()
+    return allStates;
+  }
+
+  async getAllDistricts(stateName: string): Promise<Districts[]> {
+    return await this.districtModel.find({ stateName }).exec();
+  }
+
+  async getAllSubDistricts(districtName: string): Promise<SubDistricts[]> {
+    return await this.subdistrictModel.find({ districtName }).exec();
+  }
+  async getAllVillages(subDistrictName: string): Promise<Villages[]> {
+    return await this.villageModel.find({ subDistrictName }).exec();
+  }
+
+
+
+async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
+  const { id, ...updateData } = updateUserInput;
+
+  // If password not provided, don’t update it
+  if (!updateData.password) {
+    delete updateData.password;
+    delete updateData.confirmPassword;
+  }
+
+  const updatedUser = await this.userModel
+    .findByIdAndUpdate(id, updateData, { new: true })
+    .exec();
+
+  if (!updatedUser) throw new Error("User not found");
+
+  return updatedUser;
+}
 
 
 

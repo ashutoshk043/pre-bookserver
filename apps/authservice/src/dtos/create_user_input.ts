@@ -1,6 +1,6 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
-import { RestaurantInput } from './restaurant.input';
+// import { RestaurantInput } from './restaurant.input';
 
 @InputType()
 export class CreateUserInput {
@@ -61,6 +61,6 @@ export class CreateUserInput {
   @Field(() => ID, { nullable: true })
   createdBy?: string;
 
-  @Field(() => RestaurantInput, { nullable: true })
-  restaurant?: RestaurantInput; // ✅ Optional
+  // @Field(() => RestaurantInput, { nullable: true })
+  // restaurant?: RestaurantInput; // ✅ Optional
 }

@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Restaurant } from './models/restraurent_model';
-import { CreateRestaurantDto } from './dtos/create_restraurent_input';
+// import { CreateRestaurantDto } from './dtos/create_restraurent_input';
 import { UpdateRestaurantDto } from './dtos/update_restraurent_input';
 import * as bcrypt from 'bcrypt';
 
@@ -20,62 +20,62 @@ export class restraurentService {
   /**
    * 🟢 Add (Register) a New Restaurant
    */
-  async createRestaurant(
-    createRestaurantDto: CreateRestaurantDto,
-  ): Promise<Restaurant> {
-    try {
-      const {
-        name,
-        type,
-        password,
-        confirmPassword,
-        email,
-      } = createRestaurantDto;
+  // async createRestaurant(
+  //   createRestaurantDto: CreateRestaurantDto,
+  // ): Promise<Restaurant> {
+  //   try {
+  //     const {
+  //       name,
+  //       type,
+  //       password,
+  //       confirmPassword,
+  //       email,
+  //     } = createRestaurantDto;
 
-      // 🧩 Required checks
-      if (!name || !type) {
-        throw new BadRequestException('Name and Type are required.');
-      }
+  //     // 🧩 Required checks
+  //     if (!name || !type) {
+  //       throw new BadRequestException('Name and Type are required.');
+  //     }
 
-      if (password !== confirmPassword) {
-        throw new BadRequestException('Passwords do not match.');
-      }
+  //     if (password !== confirmPassword) {
+  //       throw new BadRequestException('Passwords do not match.');
+  //     }
 
-      // 🔐 Hash password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+  //     // 🔐 Hash password
+  //     const saltRounds = 10;
+  //     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // 🏗️ Create & save new restaurant (atomic)
-      const restaurant = new this.restaurantModel({
-        ...createRestaurantDto,
-        password: hashedPassword,
-        isVerified: false,
-        registrationDate: new Date(),
-      });
+  //     // 🏗️ Create & save new restaurant (atomic)
+  //     const restaurant = new this.restaurantModel({
+  //       ...createRestaurantDto,
+  //       password: hashedPassword,
+  //       isVerified: false,
+  //       registrationDate: new Date(),
+  //     });
 
-      const saved = await restaurant.save();
-      this.logger.log(`✅ Restaurant registered: ${saved.name}`);
-      return saved;
+  //     const saved = await restaurant.save();
+  //     this.logger.log(`✅ Restaurant registered: ${saved.name}`);
+  //     return saved;
 
-    } catch (error) {
-      // ⚠️ Handle duplicate key errors from Mongo
-      if (error.code === 11000) {
-        if (error.keyPattern?.email) {
-          throw new BadRequestException('Email already registered.');
-        }
-        if (error.keyPattern?.name && error.keyPattern?.city) {
-          throw new BadRequestException(
-            'Restaurant with same name already exists in this city.',
-          );
-        }
-      }
+  //   } catch (error) {
+  //     // ⚠️ Handle duplicate key errors from Mongo
+  //     if (error.code === 11000) {
+  //       if (error.keyPattern?.email) {
+  //         throw new BadRequestException('Email already registered.');
+  //       }
+  //       if (error.keyPattern?.name && error.keyPattern?.city) {
+  //         throw new BadRequestException(
+  //           'Restaurant with same name already exists in this city.',
+  //         );
+  //       }
+  //     }
 
-      this.logger.error('❌ Restaurant registration failed', error);
-      throw new BadRequestException(
-        error.message || 'Failed to create restaurant.',
-      );
-    }
-  }
+  //     this.logger.error('❌ Restaurant registration failed', error);
+  //     throw new BadRequestException(
+  //       error.message || 'Failed to create restaurant.',
+  //     );
+  //   }
+  // }
 
   /**
    * 🟡 Get All Restaurants

@@ -11,6 +11,10 @@ import { Restaurant_details, Restaurant_detailsSchema } from './models/restraure
 import { RestraurentloginService } from './services/restraurentlogin/restraurentlogin.service';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '@app/redis/redis.module';   // ✅ Added
+import { States, StateSchema } from './models/state_model';
+import { Districts, DistrictSchema } from './models/distric_model';
+import { SubDistricts, SubDistrictSchema } from './models/subdistrict_model';
+import { Villages, VillageSchema } from './models/villagemodel';
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { RedisModule } from '@app/redis/redis.module';   // ✅ Added
       [
         { name: User.name, schema: UserSchema },
         { name: Restaurant_details.name, schema: Restaurant_detailsSchema },
+        {name:States.name, schema:StateSchema},
+        {name:Districts.name, schema:DistrictSchema},
+        {name:SubDistricts.name, schema:SubDistrictSchema},
+        {name:Villages.name, schema:VillageSchema}
       ],
       'usersConnection',
     ),
