@@ -76,30 +76,6 @@ export class RegisterService {
 
       savedUser = await newUser.save();
 
-      // STEP 3: If role is 'r6', save restaurant data
-      // if (createUserInput.roleId === 'restaurant-owner' && restaurant) {
-      //   // Check for duplicate restaurant name for the same user
-      //   const existingRestaurant = await this.restaurantModel.findOne({
-      //     restaurantName: restaurant.restaurantName,
-      //     userId: savedUser._id,
-      //   });
-
-      //   if (existingRestaurant) {
-      //     throw new Error('Restaurant with this name already exists for this user');
-      //   }
-
-      //   const restDoc = new this.restaurantModel({
-      //     ...restaurant,
-      //     userId: savedUser._id,
-      //   });
-
-      //   const savedRest = await restDoc.save();
-
-      //   // Update user with restaurantId
-      //   savedUser.restaurantId = savedRest._id.toString();
-      //   await savedUser.save();
-      // }
-
       return savedUser;
     } catch (error) {
       console.error("❌ Error creating user:", error);
@@ -121,16 +97,16 @@ export class RegisterService {
   // ============================================================
   // GET ALL USERS
   // ============================================================
-async findAllUsers(restId: any): Promise<User[]> {
-  if (restId == 'all') {
-    return this.userModel.find().sort({ _id: -1 }).exec();
-  } else {
-    return this.userModel
-      .find({ restaurantId: restId })
-      .sort({ _id: -1 })
-      .exec();
+  async findAllUsers(restId: any): Promise<User[]> {
+    if (restId == 'all') {
+      return this.userModel.find().sort({ _id: -1 }).exec();
+    } else {
+      return this.userModel
+        .find({ restaurantId: restId })
+        .sort({ _id: -1 })
+        .exec();
+    }
   }
-}
 
 
   // ============================================================
@@ -201,28 +177,39 @@ async findAllUsers(restId: any): Promise<User[]> {
     return await this.subdistrictModel.find({ districtName }).exec();
   }
   async getAllVillages(subDistrictName: string): Promise<Villages[]> {
-    return await this.villageModel.find({ subDistrictName }).exec();
+    // console.log("📌 getAllVillages() called with subDistrictName:", subDistrictName);
+
+    const villages = await this.villageModel
+      .find({ subDistrictName })
+      .collation({ locale: "en", strength: 1 })   // important for A–Z sorting
+      .sort({ villageName: 1 })                   // sort by villageName
+      .exec();
+
+    return villages;
   }
 
 
 
-async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
-  const { id, ...updateData } = updateUserInput;
 
-  // If password not provided, don’t update it
-  if (!updateData.password) {
-    delete updateData.password;
-    delete updateData.confirmPassword;
+
+
+  async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
+    const { id, ...updateData } = updateUserInput;
+
+    // If password not provided, don’t update it
+    if (!updateData.password) {
+      delete updateData.password;
+      delete updateData.confirmPassword;
+    }
+
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, updateData, { new: true })
+      .exec();
+
+    if (!updatedUser) throw new Error("User not found");
+
+    return updatedUser;
   }
-
-  const updatedUser = await this.userModel
-    .findByIdAndUpdate(id, updateData, { new: true })
-    .exec();
-
-  if (!updatedUser) throw new Error("User not found");
-
-  return updatedUser;
-}
 
 
 
