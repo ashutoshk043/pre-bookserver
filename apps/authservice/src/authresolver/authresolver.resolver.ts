@@ -30,14 +30,12 @@ export class AuthresolverResolver {
     return await this.registerService.createUser(createUserInput);
   }
 
-  @Query(() => [User], { name: 'getAllUsers' })
-  async getAllUsers(
-    @Args('restId', { type: () => String }) restId: string
-  ): Promise<User[]> {
-    const result = await this.registerService.findAllUsers(restId);
-    return result;
-  }
-
+@Query(() => [User], { name: 'getAllUsers' })
+async getAllUsers(
+  @Args('restId', { type: () => String }) restId: string
+): Promise<User[]> {
+  return this.registerService.findAllUsers(restId);
+}
   // login mutations
 
   @Mutation(() => RestaurantLoginResponse, { name: 'loginRestraurent' })

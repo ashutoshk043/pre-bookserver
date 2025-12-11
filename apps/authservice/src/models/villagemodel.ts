@@ -1,13 +1,13 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { HydratedDocument } from "mongoose";
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class Villages extends Document {
+export class Villages {
 
   @Field(() => ID)
-  declare readonly _id: string;
+  _id: string;   // GraphQL → string, DB → ObjectId
 
   @Field(() => Int)
   @Prop({ required: true })
@@ -42,4 +42,5 @@ export class Villages extends Document {
   villageName: string;
 }
 
+export type VillageDocument = HydratedDocument<Villages>;
 export const VillageSchema = SchemaFactory.createForClass(Villages);

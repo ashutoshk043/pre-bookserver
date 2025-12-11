@@ -1,29 +1,30 @@
 import { ObjectType, Field, ID, Int } from "@nestjs/graphql";
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from "mongoose";
+import { HydratedDocument } from "mongoose";
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class Districts extends Document {
+export class Districts {
 
   @Field(() => ID)
-  declare readonly _id: string;
+  _id: string;   // GraphQL exposes as string
 
   @Field(() => Int)
   @Prop({ required: true })
-  stateCode: number;   // Parent stateCode (35)
+  stateCode: number;
 
   @Field()
   @Prop({ required: true })
-  stateName: string;   // Parent state name
+  stateName: string;
 
   @Field(() => Int)
   @Prop({ required: true })
-  districtCode: number;  // District code (603)
+  districtCode: number;
 
   @Field()
   @Prop({ required: true })
-  districtName: string;  // District name (Nicobars)
+  districtName: string;
 }
 
+export type DistrictDocument = HydratedDocument<Districts>;
 export const DistrictSchema = SchemaFactory.createForClass(Districts);

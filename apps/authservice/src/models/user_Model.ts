@@ -1,14 +1,14 @@
 import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { GraphQLJSONObject } from "graphql-type-json";
-import { Document, Types } from "mongoose";
-import { Restaurant_details, Restaurant_detailsSchema } from "./restraurent_model"; 
+import { Types, HydratedDocument } from "mongoose";
+import { Restaurant_details, Restaurant_detailsSchema } from "./restraurent_model";
 
 @ObjectType()
 @Schema({ timestamps: true })
-export class User extends Document {
+export class User {
   @Field(() => ID)
-   declare readonly _id: string;   // <-- Always return as STRING for GraphQL
+  readonly _id!: Types.ObjectId;
 
   @Field({ nullable: true })
   @Prop()
@@ -56,21 +56,20 @@ export class User extends Document {
 
   @Field(() => GraphQLJSONObject, { nullable: true })
   @Prop({ type: Object, default: {} })
-  permissions?: Record<string, string[]>;
+  permissions?: Record<string, any>;
 
   @Field({ nullable: true })
   @Prop()
   createdBy?: string;
 
-  // 👉 Embed Restaurant
   @Field(() => Restaurant_details, { nullable: true })
   @Prop({ type: Restaurant_detailsSchema })
   restaurant?: Restaurant_details;
 
-  // 👉 restaurantId always string
   @Field({ nullable: true })
-  @Prop({ type: String })
+  @Prop()
   restaurantId?: string;
 }
 
+export type UserDocument = HydratedDocument<User>;
 export const UserSchema = SchemaFactory.createForClass(User);
