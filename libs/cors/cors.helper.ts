@@ -8,7 +8,7 @@ interface CorsOptions {
 
 export function enableGlobalCors(app: INestApplication, options?: CorsOptions) {
   const defaultOptions: CorsOptions = {
-    origin: 'http://localhost:4200',
+    origin: ['http://localhost:4200'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   };
