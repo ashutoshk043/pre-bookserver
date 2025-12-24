@@ -15,6 +15,7 @@ import { States, StateSchema } from './models/state_model';
 import { Districts, DistrictSchema } from './models/distric_model';
 import { SubDistricts, SubDistrictSchema } from './models/subdistrict_model';
 import { Villages, VillageSchema } from './models/villagemodel';
+import { AuthGrpcController } from './grpc/auth.grpc.controller';
 
 @Module({
   imports: [
@@ -57,7 +58,7 @@ import { Villages, VillageSchema } from './models/villagemodel';
     // 🟢 Redis Module (MANDATORY)
     RedisModule,
   ],
-  controllers: [],
+  controllers: [AuthGrpcController],
   providers: [
     AppService,
     AuthresolverResolver,

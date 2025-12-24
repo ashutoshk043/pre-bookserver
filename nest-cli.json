@@ -9,6 +9,9 @@
       "entryFile": "main",
       "sourceRoot": "apps/authservice/src",
       "compilerOptions": {
+        "assets": [
+          "apps/**/proto/*.proto"
+        ],
         "tsConfigPath": "apps/authservice/tsconfig.app.json",
         "webpack": true,
         "deleteOutDir": true
@@ -23,17 +26,6 @@
         "tsConfigPath": "libs/database/tsconfig.lib.json"
       }
     },
-    "gateway": {
-      "type": "application",
-      "root": "apps/gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/gateway/tsconfig.app.json",
-        "webpack": true,
-        "deleteOutDir": true
-      }
-    },
     "graphql": {
       "type": "library",
       "root": "libs/graphql",
@@ -43,28 +35,6 @@
         "tsConfigPath": "libs/graphql/tsconfig.lib.json"
       }
     },
-    "orderservice": {
-      "type": "application",
-      "root": "apps/foodservers/orderservice",
-      "entryFile": "main",
-      "sourceRoot": "apps/foodservers/orderservice/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/foodservers/orderservice/tsconfig.app.json",
-        "webpack": true,
-        "deleteOutDir": true
-      }
-    },
-    "productservice": {
-      "type": "application",
-      "root": "apps/foodservers/productservice",
-      "entryFile": "main",
-      "sourceRoot": "apps/foodservers/productservice/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/foodservers/productservice/tsconfig.app.json",
-        "webpack": true,
-        "deleteOutDir": true
-      }
-    },
     "redis": {
       "type": "library",
       "root": "libs/redis",
@@ -72,17 +42,6 @@
       "sourceRoot": "libs/redis/src",
       "compilerOptions": {
         "tsConfigPath": "libs/redis/tsconfig.lib.json"
-      }
-    },
-    "restraurent": {
-      "type": "application",
-      "root": "apps/foodservers/restraurent",
-      "entryFile": "main",
-      "sourceRoot": "apps/foodservers/restraurent/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/foodservers/restraurent/tsconfig.app.json",
-        "webpack": true,
-        "deleteOutDir": true
       }
     }
   },

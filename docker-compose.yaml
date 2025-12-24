@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   # ============================
@@ -42,124 +42,37 @@ services:
       start_period: 30s
 
   # ============================
-  # 🔐 Auth Service
+  # 🔐 Auth Service (NestJS + gRPC)
   # ============================
   authservice:
+    container_name: authservice
     build:
       context: .
       dockerfile: ./apps/authservice/Dockerfile
-    container_name: authservice
     restart: on-failure
     depends_on:
-      - mongo
-    environment:
-      MONGO_USER_DB: mongodb://mongo:27017/userprebook
-      NODE_ENV: docker
-      AUTHSERVICEPORT: 9000
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
-      - '9000:9000'
+      - "9000:9000"    # HTTP
+      - "50051:50051"  # gRPC
+    env_file:
+    - .env.docker
     networks:
       - app-network
-    healthcheck:
-      disable: true
 
-  # ============================
-  # 🧾 Order Service
-  # ============================
-  orderservice:
-    build:
-      context: .
-      dockerfile: ./apps/foodservers/orderservice/Dockerfile
-    container_name: orderservice
-    restart: on-failure
-    depends_on:
-      - mongo
-    environment:
-      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
-      NODE_ENV: docker
-      ORDERSERVICEPORT: 9001
-    ports:
-      - '9001:9001'
-    networks:
-      - app-network
-    healthcheck:
-      disable: true
-
-  # ============================
-  # 📦 Product Service
-  # ============================
-  productservice:
-    build:
-      context: .
-      dockerfile: ./apps/foodservers/productservice/Dockerfile
-    container_name: productservice
-    restart: on-failure
-    depends_on:
-      - mongo
-    environment:
-      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
-      NODE_ENV: docker
-      PRODUCTSERVICEPORT: 9002
-    ports:
-      - '9002:9002'
-    networks:
-      - app-network
-    healthcheck:
-      disable: true
-
-  # ============================
-  # 🏪 Restaurant Service
-  # ============================
-  restraurent:
-    build:
-      context: .
-      dockerfile: ./apps/foodservers/restraurent/Dockerfile
-    container_name: restraurent
-    restart: on-failure
-    depends_on:
-      - mongo
-      - redis
-    environment:
-      MONGO_FOOD_DB: mongodb://mongo:27017/foodprebook
-      NODE_ENV: docker
-      RESTRAURENTPORT: 9004
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    ports:
-      - '9004:9004'
-    networks:
-      - app-network
-    healthcheck:
-      disable: true
-
-  # ============================
-  # 🌐 Gateway Service
-  # ============================
-  gateway:
-    build:
-      context: .
-      dockerfile: ./apps/gateway/Dockerfile
-    container_name: gateway
-    restart: on-failure
-    depends_on:
-      - authservice
-      - orderservice
-      - productservice
-      - restraurent
-    environment:
-      NODE_ENV: docker
-      GATEWAY_PORT: 8080
-    ports:
-      - '8080:8080'
-    networks:
-      - app-network
-    healthcheck:
-      disable: true
-
+# ============================
+# 💾 Volumes
+# ============================
 volumes:
   mongo-data:
     driver: local
 
+# ============================
+# 🌐 Network
+# ============================
 networks:
   app-network:
     driver: bridge
