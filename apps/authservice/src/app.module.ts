@@ -15,7 +15,7 @@ import { States, StateSchema } from './models/state_model';
 import { Districts, DistrictSchema } from './models/distric_model';
 import { SubDistricts, SubDistrictSchema } from './models/subdistrict_model';
 import { Villages, VillageSchema } from './models/villagemodel';
-import { AuthGrpcController } from './grpc/auth.grpc.controller';
+import { AuthGrpcController } from './grpc/controllers/auth.grpc.controller';
 
 @Module({
   imports: [

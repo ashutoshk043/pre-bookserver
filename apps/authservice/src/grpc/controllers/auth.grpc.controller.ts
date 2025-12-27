@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { GrpcMethod } from '@nestjs/microservices';
-import { RegisterService } from '../services/register/register.service';
+import { RegisterService } from '../../services/register/register.service';
 
 @Controller()
 export class AuthGrpcController {

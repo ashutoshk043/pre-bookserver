@@ -5,12 +5,13 @@ import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { join } from 'path';
 
 async function bootstrap() {
-  console.log('🔄 Bootstrapping Auth Service...');
+  console.log('🔄 [Auth] Bootstrapping Auth Service...');
 
+  // HTTP + GraphQL app
   const app = await NestFactory.create(AppModule);
 
   enableGlobalCors(app);
-  console.log('✅ Global CORS enabled');
+  console.log('✅ [Auth] Global CORS enabled');
 
   const GRPC_PORT = Number(process.env.AUTH_GRPC_PORT) || 50051;
   const HTTP_PORT = Number(process.env.AUTHSERVICEPORT) || 3000;
@@ -19,22 +20,36 @@ async function bootstrap() {
     process.env.NODE_ENV === 'docker' ||
     process.env.NODE_ENV === 'production';
 
-  const protoPath = isDocker
-    ? 'dist/apps/authservice/src/proto/auth.proto'
-    : 'apps/authservice/src/proto/auth.proto';
+  const protoPath = join(
+    process.cwd(),
+    isDocker
+      ? 'dist/apps/authservice/src/grpc/proto/auth.proto'
+      : 'apps/authservice/src/grpc/proto/auth.proto',
+  );
 
+  // 🔌 gRPC microservice
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {
-      package: 'auth',
-      protoPath: join(process.cwd(), protoPath),
       url: `0.0.0.0:${GRPC_PORT}`,
+      package: 'auth',
+      protoPath,
+      loader: {
+        keepCase: true,
+      },
     },
   });
-  await app.startAllMicroservices();
-  console.log(`📡 gRPC Auth Service running on port ${GRPC_PORT}`);
 
+  // Start gRPC
+  await app.startAllMicroservices();
+  console.log(`📡 [Auth][gRPC] Listening on 0.0.0.0:${GRPC_PORT}`);
+
+  // Start HTTP / GraphQL
   await app.listen(HTTP_PORT, '0.0.0.0');
-  console.log(`🚀 AuthService HTTP + GraphQL running on port ${HTTP_PORT}`);
+  console.log(`🚀 [Auth][HTTP] Listening on 0.0.0.0:${HTTP_PORT}`);
 }
-bootstrap();
+
+bootstrap().catch((err) => {
+  console.error('❌ [Auth] Failed to start service', err);
+  process.exit(1);
+});
