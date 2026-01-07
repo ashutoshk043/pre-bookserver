@@ -10,10 +10,12 @@
       "sourceRoot": "apps/authservice/src",
       "compilerOptions": {
         "assets": [
-          "apps/**/proto/*.proto"
+          {
+            "include": "src/grpc/proto/*.proto",
+            "outDir": "src/grpc/proto"
+          }
         ],
         "tsConfigPath": "apps/authservice/tsconfig.app.json",
-        "webpack": true,
         "deleteOutDir": true
       }
     },
@@ -46,6 +48,5 @@
     }
   },
   "compilerOptions": {
-    "webpack": true
   }
 }

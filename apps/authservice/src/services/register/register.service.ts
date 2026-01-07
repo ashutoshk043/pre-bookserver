@@ -189,10 +189,6 @@ export class RegisterService {
   }
 
 
-
-
-
-
   async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
     const { id, ...updateData } = updateUserInput;
 
@@ -210,6 +206,33 @@ export class RegisterService {
 
     return updatedUser;
   }
+
+
+  async findUsersWithPagination({
+  page,
+  limit,
+  search,
+}: {
+  page: number;
+  limit: number;
+  search?: string;
+}) {
+  const query: any = {};
+
+  if (search) {
+    query.email = { $regex: search, $options: 'i' };
+  }
+
+  const total = await this.userModel.countDocuments(query);
+
+  const users = await this.userModel
+    .find(query)
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .select('email');
+
+  return { users, total };
+}
 
 
 

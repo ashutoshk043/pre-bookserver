@@ -3,7 +3,11 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
+  // existing
   rpc GetAllUsers (Empty) returns (UserList);
+
+  // 🔥 new (for restaurant, grocery, medical)
+  rpc GetUserEmails (UserPaginationRequest) returns (PaginatedUserResponse);
 }
 
 message Empty {}
@@ -15,4 +19,23 @@ message User {
 
 message UserList {
   repeated User users = 1;
+}
+
+/* ---------- NEW ---------- */
+
+message UserPaginationRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string search = 3;
+}
+
+message UserEmail {
+  string email = 1;
+}
+
+message PaginatedUserResponse {
+  repeated UserEmail data = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
 }

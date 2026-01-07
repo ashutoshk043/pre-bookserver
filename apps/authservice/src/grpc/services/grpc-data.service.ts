@@ -1,19 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { GrpcClients } from '../clients/grpc.clients';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from '../../models/user_Model';
 
 @Injectable()
 export class GrpcDataService {
-  constructor(private readonly grpcClients: GrpcClients) {}
+  constructor(
+    @InjectModel(User.name, 'usersConnection')
+    private readonly userModel: Model<User>,
+  ) { }
 
-  getRestaurant(id: string) {
-    return this.grpcClients.getRestaurant(id);
+
+  async findUsersWithPagination({
+    page,
+    limit,
+    search,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    const query: any = {};
+
+    if (search) {
+      query.email = { $regex: search, $options: 'i' };
+    }
+
+    const total = await this.userModel.countDocuments(query);
+
+    const users = await this.userModel
+      .find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select('email');
+
+    return { users, total };
   }
 
-  getGrocery(id: string) {
-    return this.grpcClients.getGrocery(id);
-  }
 
-  getMedical(id: string) {
-    return this.grpcClients.getMedical(id);
-  }
 }

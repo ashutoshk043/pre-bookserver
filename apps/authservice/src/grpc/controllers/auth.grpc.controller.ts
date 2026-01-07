@@ -4,7 +4,7 @@ import { RegisterService } from '../../services/register/register.service';
 
 @Controller()
 export class AuthGrpcController {
-  constructor(private readonly registerService: RegisterService) {}
+  constructor(private readonly registerService: RegisterService) { }
 
   @GrpcMethod('AuthService', 'GetAllUsers')
   async getAllUsers() {
@@ -17,5 +17,34 @@ export class AuthGrpcController {
       })),
     };
   }
+
+
+  @GrpcMethod('AuthService', 'GetUserEmails')
+  async getUserEmails(data: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    const { page, limit, search } = data;
+
+    const result = await this.registerService.findUsersWithPagination({
+      page,
+      limit,
+      search,
+    });
+
+    return {
+      data: result.users.map(u => ({
+        email: u.email,
+      })),
+      total: result.total,
+      page,
+      limit,
+    };
+  }
+
+
+
+
 }
 
