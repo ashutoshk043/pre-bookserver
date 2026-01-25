@@ -27,6 +27,7 @@ export class SharedGraphQLModule {
             driver: ApolloFederationDriver,
             autoSchemaFile: { federation: 2 },
             playground,
+            context: ({ req }) => ({ req }),
           }),
         ]
       : [
@@ -34,6 +35,7 @@ export class SharedGraphQLModule {
             driver: ApolloDriver,
             playground,
             autoSchemaFile: join(process.cwd(), schemaPath),
+            context: ({ req }) => ({ req }),
           }),
         ];
 

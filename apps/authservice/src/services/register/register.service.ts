@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../../models/user_Model';
-import { Restaurant_details } from '../../models/restraurent_model';
 import { CreateUserInput } from '../../dtos/create_user_input';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -20,9 +19,6 @@ export class RegisterService {
     @InjectModel(User.name, 'usersConnection')
     private readonly userModel: Model<User>,
 
-    @InjectModel(Restaurant_details.name, 'usersConnection')
-    private readonly restaurantModel: Model<Restaurant_details>,
-
     @InjectModel(States.name, 'usersConnection')
     private readonly stateModel: Model<States>,
 
@@ -36,13 +32,14 @@ export class RegisterService {
     private readonly villageModel: Model<Villages>,
 
     private readonly redisService: RedisService,
+
+    private jwtService: JwtService
   ) { }
 
   // ============================================================
   // ✅ Create User + Restaurant Details (if restaurant role)
   // ============================================================
   async createUser(createUserInput: CreateUserInput): Promise<User> {
-    console.log("📩 Received CreateUserInput:", createUserInput);
 
     const { password, confirmPassword, email, phone, ...userData } = createUserInput;
     let savedUser: User | null = null;
@@ -97,16 +94,18 @@ export class RegisterService {
   // ============================================================
   // GET ALL USERS
   // ============================================================
-  async findAllUsers(restId: any): Promise<User[]> {
-    if (restId == 'all') {
-      return this.userModel.find().sort({ _id: -1 }).exec();
-    } else {
-      return this.userModel
-        .find({ restaurantId: restId })
-        .sort({ _id: -1 })
-        .exec();
-    }
+  async findAllUsers(): Promise<User[]> {
+
+    const users = await this.userModel
+      .find()
+      .sort({ _id: -1 })
+      .exec();
+
+    // console.log('📊 Total users fetched:', users.length);
+
+    return users;
   }
+
 
 
   // ============================================================
@@ -115,42 +114,48 @@ export class RegisterService {
   async findUserById(id: string): Promise<User | null> {
     return this.userModel.findById(id).exec();
   }
-  async logoutRestraurentUser(
-    rest_id: string,
-    context?: any,
-  ): Promise<{ message: string }> {
-    const tokenKey = `rest_token_${rest_id}`;
-    console.log(`🔍 Trying to logout restaurant with ID: ${rest_id}`);
-    console.log(`🧩 Redis token key: ${tokenKey}`);
+  async logoutUser(context: any): Promise<{ message: string }> {
+    const req = context.req;
+    const res = context.res;
 
-    // 🔹 Check token in Redis
-    const existingToken = await this.redisService.get(tokenKey);
-    console.log(`📦 Existing token in Redis:`, existingToken);
+    // 1️⃣ Get token from cookie / header
+    const token =
+      req.cookies?.auth_token ||
+      req.headers.authorization?.split(' ')[1];
 
-    if (!existingToken) {
-      console.log(`⚠️ No token found for restaurant ID: ${rest_id}`);
-      return { message: 'User already logged out or invalid session' };
+    if (!token) {
+      return { message: 'Already logged out' };
     }
 
-    // 🔹 Remove token from Redis
-    await this.redisService.delete(tokenKey);
-    console.log(`🗑️ Token deleted from Redis for restaurant ID: ${rest_id}`);
-
-    // 🔹 Clear auth_token cookie
-    if (context?.res) {
-      console.log(`🍪 Clearing auth_token cookie...`);
-      context.res.clearCookie('auth_token', {
-        httpOnly: true,
-        sameSite: 'strict',
-        secure: process.env.NODE_ENV === 'production',
-      });
-    } else {
-      console.log(`⚠️ No response context found to clear cookie.`);
+    // 2️⃣ Verify token
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      return { message: 'Session already expired' };
     }
 
-    console.log(`✅ Logout successful for restaurant ID: ${rest_id}`);
+    const restId = payload.user_id;
+
+    // 3️⃣ Delete token from Redis
+    const redisKey = `rest_token_${restId}`;
+
+    console.log(redisKey, "redisKey")
+
+    await this.redisService.delete(redisKey);
+
+    // // 4️⃣ Clear refresh token cookie
+    // res.clearCookie('refresh_token', {
+    //   httpOnly: true,
+    //   sameSite: 'strict',
+    //   secure: process.env.NODE_ENV === 'production',
+    //   path: '/', // 🔥 MUST MATCH LOGIN
+    // });
+
+
     return { message: 'Logout successful' };
   }
+
 
 
 
@@ -190,49 +195,90 @@ export class RegisterService {
 
 
   async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
-    const { id, ...updateData } = updateUserInput;
+    const { id, password, confirmPassword, ...rest } = updateUserInput;
 
-    // If password not provided, don’t update it
-    if (!updateData.password) {
-      delete updateData.password;
-      delete updateData.confirmPassword;
+    const updateData: any = { ...rest };
+
+    console.log(updateData, "updateDataupdateData")
+
+    // ✅ Password update handling
+    if (password && password.trim() !== '') {
+      if (password !== confirmPassword) {
+        throw new Error('Password and confirm password do not match');
+      }
+
+      updateData.password = await bcrypt.hash(password, 10);
     }
 
-    const updatedUser = await this.userModel
-      .findByIdAndUpdate(id, updateData, { new: true })
-      .exec();
+    const updatedUser = await this.userModel.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true }
+    );
 
-    if (!updatedUser) throw new Error("User not found");
+    if (!updatedUser) {
+      throw new Error('User not found');
+    }
 
     return updatedUser;
   }
 
-
   async findUsersWithPagination({
-  page,
-  limit,
-  search,
-}: {
-  page: number;
-  limit: number;
-  search?: string;
-}) {
-  const query: any = {};
+    page,
+    limit,
+    search,
+  }: {
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    const query: any = {};
 
-  if (search) {
-    query.email = { $regex: search, $options: 'i' };
+    if (search) {
+      query.email = { $regex: search, $options: 'i' };
+    }
+
+    const total = await this.userModel.countDocuments(query);
+
+    const users = await this.userModel
+      .find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .select('email');
+
+    return { users, total };
   }
 
-  const total = await this.userModel.countDocuments(query);
 
-  const users = await this.userModel
-    .find(query)
-    .skip((page - 1) * limit)
-    .limit(limit)
-    .select('email');
+  async addRestaurantToUser(ownerEmail: string, restaurantId: string) {
+    // console.log('🔍 Finding user with email:', ownerEmail);
 
-  return { users, total };
-}
+    const user = await this.userModel.findOne({ _id: ownerEmail });
+
+    if (!user) {
+      console.error('❌ User not found:', ownerEmail);
+      throw new Error('User not found');
+    }
+
+    if (!user.restaurantIds) {
+      // console.log('🆕 Initializing restaurantIds array');
+      user.restaurantIds = [];
+    }
+
+    if (!user.restaurantIds.includes(restaurantId)) {
+      // console.log('➕ Adding restaurantId:', restaurantId);
+      user.restaurantIds.push(restaurantId);
+      await user.save();
+    } else {
+      // console.log('ℹ️ Restaurant already linked:', restaurantId);
+    }
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      restaurantIds: user.restaurantIds,
+    };
+  }
 
 
 

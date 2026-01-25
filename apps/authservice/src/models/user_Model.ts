@@ -2,7 +2,6 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { GraphQLJSONObject } from "graphql-type-json";
 import { Types, HydratedDocument } from "mongoose";
-import { Restaurant_details, Restaurant_detailsSchema } from "./restraurent_model";
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -62,13 +61,14 @@ export class User {
   @Prop()
   createdBy?: string;
 
-  @Field(() => Restaurant_details, { nullable: true })
-  @Prop({ type: Restaurant_detailsSchema })
-  restaurant?: Restaurant_details;
+  // @Field(() => Restaurant_details, { nullable: true })
+  // @Prop({ type: Restaurant_detailsSchema })
+  // restaurant?: Restaurant_details;
 
-  @Field({ nullable: true })
-  @Prop()
-  restaurantId?: string;
+  // ✅ NEW: MULTIPLE RESTAURANT IDS
+  @Field(() => [String], { nullable: true })
+  @Prop({ type: [String], default: [] })
+  restaurantIds?: string[];
 }
 
 export type UserDocument = HydratedDocument<User>;

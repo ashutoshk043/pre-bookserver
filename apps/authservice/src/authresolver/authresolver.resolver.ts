@@ -4,17 +4,17 @@ import { User } from '../models/user_Model';
 import { CreateUserInput } from '../dtos/create_user_input';
 import { RestaurantLoginResponse } from '../dtos/restraurent_login_responce';
 import { RestraurentLoginDTO } from '../dtos/restraurent_login_input';
-import { RestraurentloginService } from '../services/restraurentlogin/restraurentlogin.service';
+import { UserloginService } from '../services/userlogin/userlogin.service';
 import { LogoutResponse } from '../dtos/logout_responce';
 import { States } from '../models/state_model';
 import { Districts } from '../models/distric_model';
 import { SubDistricts } from '../models/subdistrict_model';
 import { Villages } from '../models/villagemodel';
 import { UpdateUserInput } from '../dtos/update_user_input';
-
+import { RefreshTokenResponse } from '../types/refresh-token-responce';
 @Resolver(() => User)
 export class AuthresolverResolver {
-  constructor(private readonly registerService: RegisterService, private restraurentloginservice: RestraurentloginService) { }
+  constructor(private readonly registerService: RegisterService, private userLoginservice: UserloginService) { }
 
   // ✅ Test Query
   @Query(() => String)
@@ -27,38 +27,30 @@ export class AuthresolverResolver {
   async registerUser(
     @Args('createUserInput') createUserInput: CreateUserInput,
   ): Promise<User> {
-    return await this.registerService.createUser(createUserInput);
+    return this.registerService.createUser(createUserInput);
   }
 
-@Query(() => [User], { name: 'getAllUsers' })
-async getAllUsers(
-  @Args('restId', { type: () => String }) restId: string
-): Promise<User[]> {
-  return this.registerService.findAllUsers(restId);
-}
+  @Query(() => [User], { name: 'getAllUsers' })
+  async getAllUsers(): Promise<User[]> {
+    return this.registerService.findAllUsers();
+  }
+
   // login mutations
 
-  @Mutation(() => RestaurantLoginResponse, { name: 'loginRestraurent' })
-  async loginRestraurent(
+@Mutation(() => RestaurantLoginResponse, { name: 'loginRestraurent' })
+async loginRestraurent(
     @Args('loginData') loginData: RestraurentLoginDTO,
     @Context() context: any,
-  ): Promise<RestaurantLoginResponse> {
-    return this.restraurentloginservice.loginRestraurent(loginData, context);
-  }
+): Promise<RestaurantLoginResponse> {
+    return this.userLoginservice.loginUser(loginData, context);
+}
 
 
-  @Mutation(() => LogoutResponse, { name: 'logout' })
-  async logout(
-    @Args('restId') rest_id: string,
-    @Context() context: any,
-  ): Promise<LogoutResponse> {
-    try {
-      const result = await this.registerService.logoutRestraurentUser(rest_id, context);
-      return { message: result.message };
-    } catch (error) {
-      throw new Error('Logout failed due to internal error');
-    }
-  }
+
+@Mutation(() => LogoutResponse)
+async logout(@Context() context: any): Promise<LogoutResponse> {
+  return this.registerService.logoutUser(context);
+}
 
 
   @Mutation(() => LogoutResponse, { name: 'deleteUser' })
@@ -88,28 +80,38 @@ async getAllUsers(
   }
 
 
-@Query(() => [SubDistricts], { name: 'GetAllSubDistricts' })
-async GetAllSubDistricts(
-  @Args('districtName', { type: () => String }) districtName: string
-): Promise<SubDistricts[]> {   // ✅ Sahi type
-  return await this.registerService.getAllSubDistricts(districtName);
-}
+  @Query(() => [SubDistricts], { name: 'GetAllSubDistricts' })
+  async GetAllSubDistricts(
+    @Args('districtName', { type: () => String }) districtName: string
+  ): Promise<SubDistricts[]> {   // ✅ Sahi type
+    return await this.registerService.getAllSubDistricts(districtName);
+  }
 
-@Query(() => [Villages], { name: 'getAllVillages' })
-async getAllVillages(
-  @Args('subDistrictName', { type: () => String }) subDistrictName: string
-): Promise<Villages[]> {
-  return await this.registerService.getAllVillages(subDistrictName);
-}
+  @Query(() => [Villages], { name: 'getAllVillages' })
+  async getAllVillages(
+    @Args('subDistrictName', { type: () => String }) subDistrictName: string
+  ): Promise<Villages[]> {
+    return await this.registerService.getAllVillages(subDistrictName);
+  }
 
 
-// ✅ Update existing user
-@Mutation(() => User, { name: 'updateUser' })
-async updateUser(
-  @Args('updateUserInput') updateUserInput: UpdateUserInput,
-): Promise<User> {
-  return await this.registerService.updateUser(updateUserInput);
-}
+  // ✅ Update existing user
+  @Mutation(() => User, { name: 'updateUser' })
+  async updateUser(
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ): Promise<User> {
+    return await this.registerService.updateUser(updateUserInput);
+  }
+
+
+
+  @Mutation(() => RefreshTokenResponse)
+  async refreshToken(
+    @Args('refreshToken') refreshToken: string,
+  ): Promise<RefreshTokenResponse> {
+    return this.userLoginservice.refreshAccessToken(refreshToken);
+  }
+
 
 
 

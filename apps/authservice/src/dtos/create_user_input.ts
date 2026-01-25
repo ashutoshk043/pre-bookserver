@@ -1,6 +1,5 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
 import { GraphQLJSONObject } from 'graphql-type-json';
-// import { RestaurantInput } from './restaurant.input';
 
 @InputType()
 export class CreateUserInput {
@@ -17,7 +16,7 @@ export class CreateUserInput {
   password?: string;
 
   @Field({ nullable: true })
-  confirmPassword?: string
+  confirmPassword?: string;
 
   @Field({ nullable: true })
   state?: string;
@@ -39,9 +38,10 @@ export class CreateUserInput {
 
   @Field({ nullable: true })
   status?: string;
-  
-  @Field({ nullable: true })
-  restaurantId?:string
+
+  // ✅ MULTI restaurant support
+  @Field(() => [ID], { nullable: true })
+  restaurantIds?: string[];
 
   /**
    * ✅ permissions: module-wise CRUD actions
@@ -60,7 +60,4 @@ export class CreateUserInput {
    */
   @Field(() => ID, { nullable: true })
   createdBy?: string;
-
-  // @Field(() => RestaurantInput, { nullable: true })
-  // restaurant?: RestaurantInput; // ✅ Optional
 }

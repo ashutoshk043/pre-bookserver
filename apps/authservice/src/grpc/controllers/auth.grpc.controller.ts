@@ -8,7 +8,7 @@ export class AuthGrpcController {
 
   @GrpcMethod('AuthService', 'GetAllUsers')
   async getAllUsers() {
-    const users = await this.registerService.findAllUsers('all');
+    const users = await this.registerService.findAllUsers();
 
     return {
       users: users.map(u => ({
@@ -36,6 +36,7 @@ export class AuthGrpcController {
     return {
       data: result.users.map(u => ({
         email: u.email,
+        id:u._id.toString()
       })),
       total: result.total,
       page,
@@ -45,6 +46,27 @@ export class AuthGrpcController {
 
 
 
+/* =========================
+     UPDATE USER RESTAURANT ✅
+  ========================== */
+@GrpcMethod('AuthService', 'UpdateUserRestaurant')
+async updateUserRestaurant(data: {
+  ownerEmail: string;
+  restaurantId: string;
+}) {
+  // console.log('📡 [Auth gRPC] UpdateUserRestaurant called');
+  // console.log('➡️ Payload:', data);
+
+  const result = await this.registerService.addRestaurantToUser(
+    data.ownerEmail,
+    data.restaurantId,
+  );
+
+  // console.log('✅ User updated with restaurant');
+  // console.log('⬅️ Response:', result);
+
+  return result;
+}
 
 }
 

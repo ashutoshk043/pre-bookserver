@@ -5,8 +5,12 @@ import { userProfileResponce } from "./user_profile_responce";
 export class RestaurantLoginResponse {
 
   @Field()
-  token: string;
+  accessToken: string;
+
+  @Field()
+  refreshToken: string;
 
   @Field(() => userProfileResponce, { nullable: true })
   userProfile?: userProfileResponce;
 }
+

@@ -8,7 +8,6 @@ import { RegisterService } from './services/register/register.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './models/user_Model';
 import { Restaurant_details, Restaurant_detailsSchema } from './models/restraurent_model';
-import { RestraurentloginService } from './services/restraurentlogin/restraurentlogin.service';
 import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '@app/redis/redis.module';   // ✅ Added
 import { States, StateSchema } from './models/state_model';
@@ -16,6 +15,7 @@ import { Districts, DistrictSchema } from './models/distric_model';
 import { SubDistricts, SubDistrictSchema } from './models/subdistrict_model';
 import { Villages, VillageSchema } from './models/villagemodel';
 import { AuthGrpcController } from './grpc/controllers/auth.grpc.controller';
+import { UserloginService } from './services/userlogin/userlogin.service';
 
 @Module({
   imports: [
@@ -63,7 +63,7 @@ import { AuthGrpcController } from './grpc/controllers/auth.grpc.controller';
     AppService,
     AuthresolverResolver,
     RegisterService,
-    RestraurentloginService,
+    UserloginService,
   ],
 })
 export class AppModule {

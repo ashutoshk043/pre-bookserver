@@ -5,26 +5,40 @@ import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { join } from 'path';
 import * as fs from 'fs';
 
-function resolveProtoPath(): string {
-  const candidates = [
-    // ✅ build / docker / prod
-    join(__dirname, 'grpc/proto/auth.proto'),
+// // ✅ Proto path from installed NPM package
+// function resolveProtoFromPackage(): string {
+//   try {
+//     // NPM package ka path (node_modules ke andar)
+//     const protoPath = require.resolve('@tivr/grpc-protos/proto/auth/auth.proto');
+//     console.log('✅ Using protoPath from package:', protoPath);
+//     return protoPath;
+//   } catch (err) {
+//     console.error('❌ Could not find auth.proto in @tivr/grpc-protos package');
+//     process.exit(1);
+//   }
+// }
 
-    // ✅ start:dev (ts-node)
-    join(process.cwd(), 'apps/authservice/src/grpc/proto/auth.proto'),
+function resolveProtoFromPackage(): string {
+  const possiblePaths = [
+    // 1️⃣ prod / build
+    join(__dirname, '../../node_modules/@tivr/grpc-protos/proto/auth/auth.proto'),
+    // 2️⃣ ts-node / dev
+    join(process.cwd(), 'node_modules/@tivr/grpc-protos/proto/auth/auth.proto'),
   ];
 
-  for (const path of candidates) {
-    if (fs.existsSync(path)) {
-      console.log('✅ Using protoPath:', path);
-      return path;
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      console.log('✅ Using protoPath:', p);
+      return p;
     }
   }
 
-  console.error('❌ gRPC proto file NOT FOUND. Tried paths:');
-  candidates.forEach(p => console.error('  -', p));
+  console.error('❌ Could not find restaurant.proto in @tivr/grpc-protos package. Tried paths:');
+  possiblePaths.forEach(p => console.error('  -', p));
   process.exit(1);
 }
+
+
 
 async function bootstrap() {
   console.log('🔄 [Auth] Bootstrapping Auth Service...');
@@ -37,7 +51,7 @@ async function bootstrap() {
   const HTTP_PORT = Number(process.env.AUTHSERVICEPORT) || 3000;
   const GRPC_PORT = Number(process.env.AUTH_GRPC_PORT) || 50051;
 
-  const protoPath = resolveProtoPath();
+  const protoPath = resolveProtoFromPackage();
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
