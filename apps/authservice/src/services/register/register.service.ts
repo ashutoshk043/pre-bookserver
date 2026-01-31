@@ -140,18 +140,9 @@ export class RegisterService {
     // 3️⃣ Delete token from Redis
     const redisKey = `rest_token_${restId}`;
 
-    console.log(redisKey, "redisKey")
+    console.log(redisKey, "redisKey logged out")
 
     await this.redisService.delete(redisKey);
-
-    // // 4️⃣ Clear refresh token cookie
-    // res.clearCookie('refresh_token', {
-    //   httpOnly: true,
-    //   sameSite: 'strict',
-    //   secure: process.env.NODE_ENV === 'production',
-    //   path: '/', // 🔥 MUST MATCH LOGIN
-    // });
-
 
     return { message: 'Logout successful' };
   }

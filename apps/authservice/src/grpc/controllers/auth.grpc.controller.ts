@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { GrpcMethod } from '@nestjs/microservices';
+import { GrpcMethod, RpcException } from '@nestjs/microservices';
 import { RegisterService } from '../../services/register/register.service';
 
 @Controller()
@@ -17,6 +17,27 @@ export class AuthGrpcController {
       })),
     };
   }
+
+
+@GrpcMethod('AuthService', 'GetUserDetails')
+async getUserDetails(payload: { userId: string }) {
+  const user = await this.registerService.findUserById(payload.userId);
+
+  if (!user) {
+    throw new RpcException('USER_NOT_FOUND');
+  }
+
+return {
+  id: user._id.toString(),
+  role: user.roleId || '',
+  restaurantIds: user.restaurantIds?.map(id => id.toString()) || [],
+  status: user.status ?? '',
+};
+
+}
+
+
+
 
 
   @GrpcMethod('AuthService', 'GetUserEmails')

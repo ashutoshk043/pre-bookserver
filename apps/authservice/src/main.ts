@@ -5,45 +5,28 @@ import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { join } from 'path';
 import * as fs from 'fs';
 
-// // ✅ Proto path from installed NPM package
-// function resolveProtoFromPackage(): string {
-//   try {
-//     // NPM package ka path (node_modules ke andar)
-//     const protoPath = require.resolve('@tivr/grpc-protos/proto/auth/auth.proto');
-//     console.log('✅ Using protoPath from package:', protoPath);
-//     return protoPath;
-//   } catch (err) {
-//     console.error('❌ Could not find auth.proto in @tivr/grpc-protos package');
-//     process.exit(1);
-//   }
-// }
-
 function resolveProtoFromPackage(): string {
-  const possiblePaths = [
-    // 1️⃣ prod / build
-    join(__dirname, '../../node_modules/@tivr/grpc-protos/proto/auth/auth.proto'),
-    // 2️⃣ ts-node / dev
-    join(process.cwd(), 'node_modules/@tivr/grpc-protos/proto/auth/auth.proto'),
-  ];
+  const p = join(
+    process.cwd(),
+    'node_modules/@tivr/grpc-protos/proto/auth/auth.proto'
+  );
 
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      console.log('✅ Using protoPath:', p);
-      return p;
-    }
+  if (!fs.existsSync(p)) {
+    console.error('❌ auth.proto not found at', p);
+    process.exit(1);
   }
 
-  console.error('❌ Could not find restaurant.proto in @tivr/grpc-protos package. Tried paths:');
-  possiblePaths.forEach(p => console.error('  -', p));
-  process.exit(1);
+  console.log('✅ Using protoPath:', p);
+  return p;
 }
 
 
 
+
 async function bootstrap() {
-  console.log('🔄 [Auth] Bootstrapping Auth Service...');
-  console.log('📂 __dirname:', __dirname);
-  console.log('📂 process.cwd():', process.cwd());
+  // console.log('🔄 [Auth] Bootstrapping Auth Service...');
+  // console.log('📂 __dirname:', __dirname);
+  // console.log('📂 process.cwd():', process.cwd());
 
   const app = await NestFactory.create(AppModule);
   enableGlobalCors(app);

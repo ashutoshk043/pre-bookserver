@@ -51,8 +51,7 @@ import { UserloginService } from './services/userlogin/userlogin.service';
 
     // JWT Module
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secretKey',
-      signOptions: { expiresIn: '1h' },
+      secret: process.env.JWT_SECRET || 'secretKey'
     }),
 
     // 🟢 Redis Module (MANDATORY)
