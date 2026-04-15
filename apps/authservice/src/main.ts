@@ -8,7 +8,7 @@ import * as fs from 'fs';
 function resolveProtoFromPackage(): string {
   const p = join(
     process.cwd(),
-    'node_modules/@tivr/grpc-protos/proto/auth/auth.proto'
+    'node_modules/@tivr/grpc-protos/proto/auth/auth.proto',
   );
 
   if (!fs.existsSync(p)) {
@@ -19,9 +19,6 @@ function resolveProtoFromPackage(): string {
   console.log('✅ Using protoPath:', p);
   return p;
 }
-
-
-
 
 async function bootstrap() {
   // console.log('🔄 [Auth] Bootstrapping Auth Service...');
