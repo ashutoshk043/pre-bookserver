@@ -358,4 +358,31 @@ return {
 
 
 
+
+
+// Add this method to your ServiceService class
+// Add this method to your ServiceService class
+async logout(userId: string) {
+  try {
+    // Clear refresh token from database
+    const result = await this.appUserModel.updateOne(
+      { _id: userId },
+      { $set: { refreshToken: null } }
+    );
+
+    if (result.modifiedCount === 0) {
+      console.warn(`No refresh token found for user: ${userId}`);
+    }
+
+    return {
+      success: true,
+      message: 'Logged out successfully',
+    };
+  } catch (error) {
+    console.error('Logout error:', error);
+    throw new InternalServerErrorException('Failed to logout');
+  }
+}
+
+
 }

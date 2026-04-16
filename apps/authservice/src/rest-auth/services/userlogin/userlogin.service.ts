@@ -295,29 +295,34 @@ export class UserloginService {
   /**
    * Get token info without verification
    */
-  getTokenInfo(token: string): any {
-    try {
-      const decoded = this.jwtService.decode(token);
-      if (!decoded) {
-        return { error: 'Invalid token' };
-      }
-      
-      const now = Math.floor(Date.now() / 1000);
-      const isExpired = decoded.exp ? decoded.exp < now : false;
-      const timeToExpiry = decoded.exp ? decoded.exp - now : 0;
-      
-      return {
-        isValid: true,
-        userId: decoded.user_id,
-        roleId: decoded.roleId,
-        tokenType: decoded.tokenType,
-        issuedAt: new Date(decoded.iat * 1000).toISOString(),
-        expiresAt: new Date(decoded.exp * 1000).toISOString(),
-        isExpired: isExpired,
-        timeToExpiry: isExpired ? 'Expired' : `${Math.floor(timeToExpiry / 86400)} days ${Math.floor((timeToExpiry % 86400) / 3600)} hours`,
-      };
-    } catch (error) {
-      return { error: error.message };
-    }
+getTokenInfo(token: string): any {
+  try {
+    const decoded: any = this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    const now = Math.floor(Date.now() / 1000);
+    const isExpired = decoded.exp ? decoded.exp < now : false;
+    const timeToExpiry = decoded.exp ? decoded.exp - now : 0;
+
+    return {
+      isValid: true,
+      userId: decoded.user_id,
+      roleId: decoded.roleId,
+      tokenType: decoded.tokenType,
+      issuedAt: new Date(decoded.iat * 1000).toISOString(),
+      expiresAt: new Date(decoded.exp * 1000).toISOString(),
+      isExpired,
+      timeToExpiry: isExpired
+        ? 'Expired'
+        : `${Math.floor(timeToExpiry / 86400)}d ${Math.floor((timeToExpiry % 86400) / 3600)}h`,
+    };
+
+  } catch (error: any) {
+    return {
+      isValid: false,
+      error: error.message,
+    };
   }
+}
 }

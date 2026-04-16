@@ -10,6 +10,8 @@ import { AuthResponse, OtpResponse }  from '../types/auth.types';
 import { UpdateProfileResponse }      from '../types/profile.types';
 import { UserProfileResponse }        from '../types/user-profile.type';
 import { AddressResponse, MutationResult } from '../dtos/address.input';
+// import { LogoutResponse } from '../types/logoutResponce';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Resolver()
 export class ResolverResolver {
@@ -117,4 +119,21 @@ async addAddress(
   ) {
     return this.addressService.setDefaultAddress(id, this.getUserId(context));
   }
+
+
+// In your resolver file
+// @Mutation(() => LogoutResponse)
+// async logout(@Context() context: any) {
+//   // Get userId from context (your existing method)
+//   const userId = this.getUserId(context);
+  
+//   if (!userId) {
+//     throw new UnauthorizedException('User not authenticated');
+//   }
+  
+//   return this.authService.logout(userId);
+// }
+
+
+
 }
