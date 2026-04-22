@@ -1,7 +1,7 @@
 // register.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User } from '../../models/user_Model';
 import { CreateUserInput } from '../../dtos/create_user_input';
 import * as bcrypt from 'bcrypt';
@@ -34,7 +34,7 @@ export class RegisterService {
     private readonly redisService: RedisService,
 
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   // ============================================================
   // ✅ Create User + Restaurant Details (if restaurant role)
@@ -69,6 +69,7 @@ export class RegisterService {
         phone,
         password: hashedPassword,
         ...userData,
+        ...(userData.zone && { zone: new Types.ObjectId(userData.zone) }),
       });
 
       savedUser = await newUser.save();
@@ -173,20 +174,21 @@ export class RegisterService {
 
     return villages;
   }
-
   async updateUser(updateUserInput: UpdateUserInput): Promise<User> {
     const { id, password, confirmPassword, ...rest } = updateUserInput;
 
     const updateData: any = { ...rest };
 
-    console.log(updateData, 'updateDataupdateData');
+    // ✅ Convert zone string → ObjectId
+    if (updateData.zone) {
+      updateData.zone = new Types.ObjectId(updateData.zone);
+    }
 
     // ✅ Password update handling
     if (password && password.trim() !== '') {
       if (password !== confirmPassword) {
         throw new Error('Password and confirm password do not match');
       }
-
       updateData.password = await bcrypt.hash(password, 10);
     }
 

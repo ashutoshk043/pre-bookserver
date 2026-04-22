@@ -7,7 +7,7 @@ import { CreateUserInput } from './create_user_input';
 export class UpdateUserInput extends PartialType(CreateUserInput) {
   // 🔥 Required for update
   @Field(() => ID)
-  id: string;
+  id!: string;
 
   // ❗ DO NOT re-declare password here
   // password & confirmPassword already inherited from CreateUserInput

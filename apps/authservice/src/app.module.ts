@@ -24,6 +24,7 @@ import { AuthGrpcController } from './rest-auth/grpc/controllers/auth.grpc.contr
 import { UserloginService } from './rest-auth/services/userlogin/userlogin.service';
 import { RestAuthModule } from './rest-auth/rest-auth.module';
 import { AppAuthModule } from './app-auth/app-auth.module';
+import { LocationsModule } from './locations/locations.module';
 
 @Module({
   imports: [
@@ -72,6 +73,8 @@ import { AppAuthModule } from './app-auth/app-auth.module';
     RestAuthModule,
 
     AppAuthModule,
+
+    LocationsModule,
   ],
   controllers: [AuthGrpcController],
   providers: [

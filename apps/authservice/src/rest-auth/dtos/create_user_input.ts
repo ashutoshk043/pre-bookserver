@@ -39,6 +39,9 @@ export class CreateUserInput {
   @Field({ nullable: true })
   status?: string;
 
+  @Field({ nullable: true })
+  zone?: string;
+
   // ✅ MULTI restaurant support
   @Field(() => [ID], { nullable: true })
   restaurantIds?: string[];

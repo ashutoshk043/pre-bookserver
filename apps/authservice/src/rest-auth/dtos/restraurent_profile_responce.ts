@@ -1,21 +1,21 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
 
-@ObjectType() // ✅ GraphQL output ke liye
+@ObjectType()
 export class restProfileDTO {
   @Field(() => String)
-  userId: string;
+  userId!: string;
 
   @Field(() => String, { nullable: true })
   restaurantName?: string;
 
   @Field(() => String)
-  restaurantType: string;
+  restaurantType!: string;
 
   @Field(() => String)
-  restaurantAddress: string;
+  restaurantAddress!: string;
 
   @Field(() => String)
-  pincode: string;
+  pincode!: string;
 
   @Field(() => String, { nullable: true })
   latitude?: string;
@@ -44,14 +44,18 @@ export class restProfileDTO {
   @Field(() => String, { nullable: true })
   logoUrl?: string;
 
-  @Field(() => Date, { nullable: true })
-  coverImageUrl?: Date;
+  @Field(() => String, { nullable: true })
+  coverImageUrl?: string;        // ✅ fixed: was Date, should be String
 
   @Field(() => String, { nullable: true })
   description?: string;
 
   @Field(() => Boolean, { nullable: true })
   isVerified?: boolean;
+
+  // ✅ Zone reference (stored as ObjectId, exposed as ID string)
+  @Field(() => ID, { nullable: true })
+  zone?: string;
 }
 
 export { restProfileDTO as default };

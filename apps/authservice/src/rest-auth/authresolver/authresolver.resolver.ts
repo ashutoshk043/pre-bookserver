@@ -58,7 +58,7 @@ export class AuthresolverResolver {
     try {
       const result = await this.registerService.deleteUser(userId);
       return { message: result.message };
-    } catch (error) {
+    } catch (error:any) {
       throw new Error('Delete failed: ' + error.message);
     }
   }

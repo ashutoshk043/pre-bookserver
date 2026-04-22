@@ -3,42 +3,41 @@ import { InputType, Field } from '@nestjs/graphql';
 @InputType()
 export class RestaurantInput {
   @Field()
-  restaurantName: string;
+  restaurantName!: string;
 
   @Field()
-  restaurantType: string;
+  restaurantType!: string;
 
   @Field()
-  restaurantAddress: string;
+  restaurantAddress!: string;
 
   @Field()
-  pincode: string;
+  pincode!: string;
 
   @Field()
-  latitude: string;
+  latitude!: string;
 
   @Field()
-  longitude: string;
+  longitude!: string;
 
   @Field()
-  fssaiNumber: string;
+  fssaiNumber!: string;
 
   @Field()
-  gstNumber: string;
+  gstNumber!: string;
 
   @Field()
-  panNumber: string;
+  panNumber!: string;
 
   @Field()
-  registrationDate: string;
+  registrationDate!: string;
 
   @Field()
-  openingTime: string;
+  openingTime!: string;
 
   @Field()
-  closingTime: string;
+  closingTime!: string;
 
-  // ❌ These 3 are optional
   @Field({ nullable: true })
   logoUrl?: string;
 
@@ -49,5 +48,5 @@ export class RestaurantInput {
   description?: string;
 
   @Field()
-  isVerified: boolean;
+  isVerified!: boolean;
 }

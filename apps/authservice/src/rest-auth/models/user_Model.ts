@@ -61,14 +61,14 @@ export class User {
   @Prop()
   createdBy?: string;
 
-  // @Field(() => Restaurant_details, { nullable: true })
-  // @Prop({ type: Restaurant_detailsSchema })
-  // restaurant?: Restaurant_details;
-
-  // ✅ NEW: MULTIPLE RESTAURANT IDS
   @Field(() => [String], { nullable: true })
   @Prop({ type: [String], default: [] })
   restaurantIds?: string[];
+
+  // ✅ Zone reference
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: Types.ObjectId, ref: 'Zone' })
+  zone?: Types.ObjectId;
 }
 
 export type UserDocument = HydratedDocument<User>;
